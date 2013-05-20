@@ -1,0 +1,236 @@
+TITLE: How to Make Animations from Individual Frames
+AUTHOR: Hans Petter Langtangen at Center for Biomedical Computing, Simula Research Laboratory and Department of Informatics, University of Oslo
+AUTHOR: Johannes Ring at Center for Biomedical Computing, Simula Research Laboratory
+DATE: today
+
+<%
+path2frames = '../../../test/frames'
+%>
+
+__Summary.__
+This note explains how to create animations from a series of individual plots.
+The animations are realized in several formats relevant for today's
+web browsers and PDF viewers: animated GIF, MP4, WebM, Ogg, and Flash.
+The tools used to create video files are `convert`, `ffmpeg`, `avconv`,
+and `mencoder`.
+
+======= Problem setting =======
+
+Suppose we have a set of image files containing a curve that moves.
+Two such images are displayed in Figure ref{animate:fig:frames}.  In
+our particular example, the animation shows the evolution of a
+function $f(x,t)$ in time $t$, where the the individual plots
+correspond to different values of $t$.
+
+FIGURE: [fig-animate/frames, width=700]
+
+Our aim is to combine the individual image files to a movie file
+that can be shown in a web page, a PDF document, or simply just played
+by a video player on a computer.
+
+MOVIE: [mov-animate/demo.ogg]
+
+__Filenames.__
+In the forthcoming examples, the individual plot files are stored in a
+subdirectory `frames` and have filenames `frame_0000.png`,
+`frame_0001.png`, `frame_0002.png`, and so on. The plot files were
+generated in some program that used the printf syntax `frame_%04d.png`
+to specify the filenames. Note that the padding with zeros is
+important if we want a Unix wildcard notation `frame_*.png` to list
+the files in correct order (without padding, `frame_21.png` appears
+before `frame_2.png` in a standard alphanumeric sorting).
+
+__Video formats.__
+The relevant video formats are dictated by the media we want to use to
+display the video. In web pages, modern HTML5 has support for video,
+but it is recommended to have the video available in three formats to
+cover the most common browsers and devices: MP4, WebM, and Ogg.
+HTML pages can also show animated GIF files.  Flash files can
+be uploaded to YouTube or Vimeo and embedded in any HTML file. In PDF documents
+produced from LaTeX, the `media9` package is the current standard. It
+supports embedded movies in MP4 or Flash format to be displayed by
+Acrobat Reader version 9 and later.
+
+
+======= Creating movies =======
+
+===== Animate GIF file =====
+
+Animated GIF files can be made by the "`convert`":
+"http://www.imagemagick.org/script/convert.php" program from the
+"ImageMagick": "http://www.imagemagick.org/script/index.php" suite.
+Making an animation with 12 frames per second in the file
+`demo_convert.gif` is done by
+
+!bc sys
+Terminal> convert -delay 8 frames/frame_*.png demo_convert.gif
+!ec
+The `-delay` option specifies the number of 0.01 seconds between each
+frame, so if we want 12 frames per second, the delay becomes $100/12
+\approx 8$. One can add the option `-loop 0` to make the animation
+repeat forever.
+
+With a lot of frames, especially when each frame has a significant size,
+`convert` needs substantial computational resources to make the animated
+GIF file, and the filesize easily becomes huge.
+
+[hpl: `convert` is killed when trying to make the demo animation; it is too big
+for my Mac 11''.]
+
+===== Using `ffmpeg` to make MP4, WebM, Ogg, and Flash files =====
+
+The basic `ffmpeg` command for producing a movie file with
+name `movie.ext`, in the format
+implied by the extension `.ext`, reads
+
+!bc sys
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png movie.ext
+!ec
+The `-r` option specifies the number of frames per second, and `-i`
+lists the individual frames, with the filenames parameterized
+according to the printf syntax. The relevant extensions are
+`.mp4` for MP4, `.webm` for WebM, and `.ogg` for Ogg.
+
+Video files are compressed and therefore need a "codec":
+"http://en.wikipedia.org/wiki/Video_codec" to compress and decompress
+the contents. One should specify the codec explicitly to make sure
+the same codec is used for making the movie and for playing it.
+For the MP4 format it is common now to use the H.264 standard,
+which is implemented in the open source library `x264`. The
+Ogg format should be made with the `libtheora` (for video)
+and `libvorbis` (for audio) codecs. The Google-sponsored WebM
+format applies the `libvpx` codec (for video) and
+the `libvorbis` codec (for audio).
+
+__Creating MP4 video.__
+The `ffmpeg` command for MP4 movies with the H.264 codec is
+
+!bc sys
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
+          -vcodec libx264 -x264opts movie1.mp4
+!ec
+The option for the audio codec (`-acodec`) can be skipped when there is
+not sound.
+
+The resulting file can be shown in a video player, such as `vlc`, `mplayer`,
+or `totem` on Linux platforms:
+
+!bc sys
+Terminal> vlc movie1.mp4
+Terminal> mplayer movie1.mp4
+Terminal> totem movie1.mp4
+!ec
+
+[hpl: Some doc (the doc of the media9 package to be specific) claims
+that `keyint=12` is important (one key frame per second for effective
+video searching), but `ffmpeg` on Ubuntu does not recognize this option.
+Is it available on Mac?]
+
+[hpl: On my Ubuntu, `ffmpeg` does not recognize the `-x264opts` option.
+It did not recognize `libx64` but suddenly it does.]
+
+__Creating WebM video.__
+The relevant `ffmpeg` command video in the WebM format is
+
+!bc sys
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
+          -acodec libvorbis -vcodec libvpx movie1.webm
+!ec
+
+__Creating Ogg video.__
+The proper `ffmpeg` command for Ogg video is
+
+!bc sys
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
+          -acodec libvorbis -vcodec libtheora movie1.ogg
+!ec
+
+__Creating Flash video.__
+The Flash format is produced by the `ffmpeg` command
+
+!bc sys
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
+          -vcodec flv movie1.flv
+!ec
+
+The command `ffmpeg -codecs` lists all available codecs. [hpl: All installed
+or all available in theory?]
+
+===== Using `avconv` to make MP4, WebM, Ogg, and Flash files =====
+
+Exactly the same commands as for `ffmpeg`.
+
+===== Using `mencoder` to make MP4, WebM, and Ogg files =====
+
+[hpl: No idea about the commands.]
+
+ * URL: "http://forums.bakabt.me/index.php?topic=13304.0"
+ * URL: "http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html"
+ * URL: "http://www.mplayerhq.hu/DOCS/HTML/en/encoding-guide.html"
+
+===== Uploading a video to YouTube =====
+
+The easiest way of playing a movie is to have it available on YouTube
+since any browser is capable of playing a YouTube video.
+Video files can be uploaded manually...
+
+The "`youtube-upload`": "http://code.google.com/p/youtube-upload" script by
+Arnau Sanchez automates uploading a video to YouTube.
+
+@@@CODE src-animate/youtube-upload
+
+===== Uploading a video to Vimeo =====
+
+======= Displaying movies =======
+
+===== HTML5 `video` tag =====
+
+To display a specific video file, say `movie1.webm`, the relevant
+HTML5 command is
+
+!bc htmlcod
+<video autoplay loop controls
+       width='640' height='365' preload='none'>
+<source src='movie1.webm'  type='video/webm; codecs="vp8, vorbis"'>
+</video>
+!ec
+The `autoplay` command makes the video play when the page is loaded.
+You may not want this feature. The `loop` command causes the video to
+repeat forever, while `controls` inserts some basic controls for
+playing, pausing, full screen viewing, etc.
+
+The fundamental problem with the `video` tag in HTML5 is that
+it does not work with any format in any browser on any type of device.
+A common recommendation is to make the videos in three formats,
+MP4, WebM, and Ogg, and specify all three as possible formats:
+
+!bc htmlcod
+<div>
+<video autoplay loop controls
+       width='640' height='365' preload='none'>
+<source src='movie1.mp4'  type='video/mp4;
+        codecs="avc1.42E01E, mp4a.40.2"'>
+<source src='movie1.webm' type='video/webm;
+        codecs="vp8, vorbis"'>
+<source src='movie1.ogg'  type='video/ogg;
+        codecs="theora, vorbis"'>
+</video>
+</div>
+!ec
+The MP4 file is specified first, because on iOS devices (iPhone/iPad)
+only one source is loaded, but these devices play MP4 files.
+
+===== Classic HTML `embed` tag =====
+
+Prior to HTML5 one used the `embed` tag to embed movies. The browser
+then relies on some player on the system. Successful playing of a video
+relies on
+correct configuration of the browser with an appropriate movie player.
+The `embed` tag looks like
+
+!bc htmlcod
+<embed src="movie1.mpeg" width='640' height='365'
+       autoplay="true" loop="true"></embed>
+!ec
+
+
