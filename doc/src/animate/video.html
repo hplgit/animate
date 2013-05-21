@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Automatically generated HTML file from Doconce source
+(http://code.google.com/p/doconce/)
+-->
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Doconce: http://code.google.com/p/doconce/" />
+<meta name="description" content="How to Make Animations from Individual Frames">
+
+
+
+<style type="text/css">
+    body {
+      font-family: Helvetica, Verdana, Arial, Sans-serif;
+      color: #404040;
+      background: #ffffff;
+    }
+    h1 { font-size: 1.8em;  color: #8A0808; }
+    h2 { font-size: 1.5em;  color: #8A0808; }
+    h3, h4 { color: #8A0808; }
+    a { color: #8A0808; text-decoration:none; }
+    tt { font-family: "Courier New", Courier; }
+    
+    p { text-indent: 0px; }
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    p.caption { width: 80%; font-style: normal; text-align: left; }
+    hr.figure { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+
+</style>
+
+</head>
+
+<!-- tocinfo
+{'highest level': 1,
+ 'sections': [(' Problem setting ', 1, None, '___sec0'),
+              (' Creating movies ', 1, None, '___sec1'),
+              (' Animate GIF file ', 2, None, '___sec2'),
+              (' Using `ffmpeg` to make MP4, WebM, Ogg, and Flash files ',
+               2,
+               None,
+               '___sec3'),
+              (' Using `avconv` to make MP4, WebM, Ogg, and Flash files ',
+               2,
+               None,
+               '___sec4'),
+              (' Using `mencoder` to make MP4, WebM, and Ogg files ',
+               2,
+               None,
+               '___sec5'),
+              (' Uploading a video to YouTube ', 2, None, '___sec6'),
+              (' Uploading a video to Vimeo ', 2, None, '___sec7'),
+              (' Playing a sequence of image files in HTML/JavaScript ',
+               2,
+               None,
+               '___sec8'),
+              (' Displaying movies ', 1, None, '___sec9'),
+              (' HTML5 `video` tag ', 2, None, '___sec10'),
+              (' Classic HTML `embed` tag ', 2, None, '___sec11'),
+              (' Emedding YouTube and Vimeo movies in HTML ',
+               2,
+               None,
+               '___sec12'),
+              (' Embedding movies in LaTeX-generated PDF files ',
+               2,
+               None,
+               '___sec13'),
+              (' Appendix: Software installation ', 1, None, '___sec14'),
+              (' Ubuntu/Debian ', 2, None, '___sec15')]}
+end of tocinfo -->
+
+<body>
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: {
+     equationNumbers: {  autoNumber: "AMS"  },
+     extensions: ["AMSmath.js", "AMSsymbols.js", "autobold.js"]
+  }
+});
+</script>
+<script type="text/javascript"
+ src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- Fix slow MathJax rendering in IE8 -->
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+
+
+
+
+    
+<!-- ------------------- main content ---------------------- -->
+
+
+<title>How to Make Animations from Individual Frames</title>
+
+<center><h1>How to Make Animations from Individual Frames</h1></center>  <!-- document title -->
+
+<p>
+<!-- author(s): Hans Petter Langtangen, and Johannes Ring -->
+
+<center>
+<b>Hans Petter Langtangen</b> [1, 2]
+</center>
+
+<center>
+<b>Johannes Ring</b> [1]
+</center>
+
+
+<p>
+<!-- institution(s) -->
+
+<center>[1] <b>Center for Biomedical Computing, Simula Research Laboratory</b></center>
+<center>[2] <b>Department of Informatics, University of Oslo</b></center>
+<p>
+<center><h4>May 21, 2013</h4></center> <!-- date -->
+<p>
+<b>Summary.</b> This note explains how to create animations from a series of individual plots.
+The animations are realized in several formats relevant for today's
+web browsers and PDF viewers: animated GIF, MP4, WebM, Ogg, and Flash.
+The tools used to create video files are <code>convert</code>, <code>ffmpeg</code>, <code>avconv</code>,
+and <code>mencoder</code>.
+
+<h2>Problem setting  <a name="___sec0"></a></h2>
+
+<p>
+Suppose we have a set of image files containing a curve that moves.
+Two such images are displayed in Figure ref{animate:fig:frames}.  In
+our particular example, the animation shows the evolution of a
+function \( f(x,t) \) in time \( t \), where the the individual plots
+correspond to different values of \( t \).
+
+<p>
+<center><p><img src="fig-animate/frames.png" align="bottom" width=700></p></center>
+
+<p>
+Our aim is to combine the individual image files to a movie file
+that can be shown in a web page, a PDF document, or simply just played
+by a video player on a computer.
+
+<p>
+
+<div>
+<video  loop controls width='640' height='365' preload='none'>
+<source src='mov-animate/demo.webm' type='video/webm; codecs="vp8, vorbis"'>
+<source src='mov-animate/demo.ogg'  type='video/ogg; codecs="theora, vorbis"'>
+</video>
+</div>
+<p><em></em></p>
+
+
+<p>
+<b>Filenames.</b>
+In the forthcoming examples, the individual plot files are stored in a
+subdirectory <code>frames</code> and have filenames <code>frame_0000.png</code>,
+<code>frame_0001.png</code>, <code>frame_0002.png</code>, and so on. The plot files were
+generated in some program that used the printf syntax <code>frame_%04d.png</code>
+to specify the filenames. Note that the padding with zeros is
+important if we want a Unix wildcard notation <code>frame_*.png</code> to list
+the files in correct order (without padding, <code>frame_21.png</code> appears
+before <code>frame_2.png</code> in a standard alphanumeric sorting).
+
+<p>
+<b>Video formats.</b>
+The relevant video formats are dictated by the media we want to use to
+display the video. In web pages, modern HTML5 has support for video,
+but it is recommended to have the video available in three formats to
+cover the most common browsers and devices: MP4, WebM, and Ogg.
+HTML pages can also show animated GIF files.  Flash files can
+be uploaded to YouTube or Vimeo and embedded in any HTML file. In PDF documents
+produced from LaTeX, the <code>media9</code> package is the current standard. It
+supports embedded movies in MP4 or Flash format to be displayed by
+Acrobat Reader version 9 and later.
+
+<h2>Creating movies  <a name="___sec1"></a></h2>
+
+<h3>Animate GIF file  <a name="___sec2"></a></h3>
+
+<p>
+Animated GIF files can be made by the <a href="http://www.imagemagick.org/script/convert.php"><tt>convert</tt></a> program from the
+<a href="http://www.imagemagick.org/script/index.php">ImageMagick</a> suite.
+Making an animation with 12 frames per second in the file
+<code>demo_convert.gif</code> is done by
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; convert -delay 8 frames/frame_*.png demo_convert.gif
+</pre></div>
+<p>
+The <code>-delay</code> option specifies the number of 0.01 seconds between each
+frame, so if we want 12 frames per second, the delay becomes \( 100/12
+\approx 8 \). One can add the option <code>-loop 0</code> to make the animation
+repeat forever.
+
+<p>
+The animated GIF file is displayed through an ordinary image tag
+in HTML: <code><img src="demo_convert.gif" width=500></code>.
+Alternatively, one can run <code>animate demo_convert.gif</code> to watch the
+movie on the screen.
+
+<p>
+With a lot of frames, especially when each frame has a significant size,
+<code>convert</code> needs substantial computational resources to make the animated
+GIF file, and the filesize easily becomes huge (essentially the sum
+of the GIF versions of the PNG files in this example). The
+corresponding loading time in HTML or in the <code>animate</code> application
+is significant. Hence, animated GIF files are best suited for smaller
+file collections.
+
+<p>
+
+<!-- begin inline comment -->
+<font color="red">[<b>hpl 1</b>: <em>`convert` is killed when trying to make the demo animation; it is too big
+for my Mac 11''.</em>]</font>
+<!-- end inline comment -->
+
+<h3>Using <code>ffmpeg</code> to make MP4, WebM, Ogg, and Flash files  <a name="___sec3"></a></h3>
+
+<p>
+The basic <code>ffmpeg</code> command for producing a movie file with
+name <code>movie.ext</code>, in the format
+implied by the extension <code>.ext</code>, reads
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png movie.ext
+</pre></div>
+<p>
+The <code>-r</code> option specifies the number of frames per second, and <code>-i</code>
+lists the individual frames, with the filenames parameterized
+according to the printf syntax. The relevant extensions are
+<code>.mp4</code> for MP4, <code>.webm</code> for WebM, and <code>.ogg</code> for Ogg.
+
+<p>
+Video files are compressed and therefore need a <a href="http://en.wikipedia.org/wiki/Video_codec">codec</a> to compress and decompress
+the contents. One should specify the codec explicitly to make sure
+the same codec is used for making the movie and for playing it.
+For the MP4 format it is common now to use the H.264 standard,
+which is implemented in the open source library <code>x264</code>. The
+Ogg format should be made with the <code>libtheora</code> (for video)
+and <code>libvorbis</code> (for audio) codecs. The Google-sponsored WebM
+format applies the <code>libvpx</code> codec (for video) and
+the <code>libvorbis</code> codec (for audio).
+
+<p>
+<b>Creating MP4 video.</b>
+The <code>ffmpeg</code> command for MP4 movies with the H.264 codec is
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png <span style="color: #BB6622; font-weight: bold">\ </span>
+          -vcodec libx264 -x264opts movie1.mp4
+</pre></div>
+<p>
+The option for the audio codec (<code>-acodec</code>) can be skipped when there is
+not sound. The <code>-x64opts</code> does not work on all platforms. 
+<!-- begin inline comment -->
+<font color="red">[<b>hpl 2</b>: <em>Be specific!
+It appears here and there, but does not work on Ubuntu.</em>]</font>
+<!-- end inline comment -->
+
+
+<p>
+The resulting file can be shown in a video player, such as
+<a href="http://www.videolan.org/vlc/index.html"><tt>vlc</tt></a>,
+<a href="http://www.mplayerhq.hu/design7/news.html"><tt>mplayer</tt></a>,
+<a href="http://www.xine-project.org/home"><tt>gxine</tt></a>, or
+<a href="http://projects.gnome.org/totem/"><tt>totem</tt></a> on Linux platforms:
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; vlc movie1.mp4
+Terminal&gt; mplayer movie1.mp4
+Terminal&gt; gxine movie1.mp4
+Terminal&gt; totem movie1.mp4
+</pre></div>
+<p>
+
+<!-- begin inline comment -->
+<font color="red">[<b>hpl 3</b>: <em>Some doc (the doc of the media9 package to be specific) claims
+that <code>keyint=12</code> is important (one key frame per second for effective
+video searching), but <code>ffmpeg</code> on Ubuntu does not recognize this option.
+Is it available on Mac?</em>]</font>
+<!-- end inline comment -->
+
+
+<p>
+
+<!-- begin inline comment -->
+<font color="red">[<b>hpl 4</b>: <em>On my Ubuntu, <code>ffmpeg</code> does not recognize the <code>-x264opts</code> option.
+It did not recognize <code>libx64</code> but suddenly it does.</em>]</font>
+<!-- end inline comment -->
+
+
+<p>
+<b>Creating WebM video.</b>
+The relevant <code>ffmpeg</code> command video in the WebM format is
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png <span style="color: #BB6622; font-weight: bold">\ </span>
+          -acodec libvorbis -vcodec libvpx movie1.webm
+</pre></div>
+<p>
+<b>Creating Ogg video.</b>
+The proper <code>ffmpeg</code> command for Ogg video is
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png <span style="color: #BB6622; font-weight: bold">\ </span>
+          -acodec libvorbis -vcodec libtheora movie1.ogg
+</pre></div>
+<p>
+<b>Creating Flash video.</b>
+The Flash format is produced by the <code>ffmpeg</code> command
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png <span style="color: #BB6622; font-weight: bold">\ </span>
+          -vcodec flv movie1.flv
+</pre></div>
+<p>
+The command <code>ffmpeg -codecs</code> lists all available codecs. 
+<!-- begin inline comment -->
+<font color="red">[<b>hpl 5</b>: <em>All installed
+or all available in theory?</em>]</font>
+<!-- end inline comment -->
+
+<h3>Using <code>avconv</code> to make MP4, WebM, Ogg, and Flash files  <a name="___sec4"></a></h3>
+
+<p>
+Exactly the same commands as for <code>ffmpeg</code>.
+
+<h3>Using <code>mencoder</code> to make MP4, WebM, and Ogg files  <a name="___sec5"></a></h3>
+
+<p>
+
+<!-- begin inline comment -->
+<font color="red">[<b>hpl 6</b>: <em>No idea about the commands.</em>]</font>
+<!-- end inline comment -->
+
+
+<p>
+
+<ul>
+ <li> <a href="http://forums.bakabt.me/index.php?topic=13304.0"><tt>http://forums.bakabt.me/index.php?topic=13304.0</tt></a></li>
+ <li> <a href="http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html"><tt>http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html</tt></a></li>
+ <li> <a href="http://www.mplayerhq.hu/DOCS/HTML/en/encoding-guide.html"><tt>http://www.mplayerhq.hu/DOCS/HTML/en/encoding-guide.html</tt></a></li>
+</ul>
+
+<h3>Uploading a video to YouTube  <a name="___sec6"></a></h3>
+
+<p>
+The easiest way of playing a movie is to have it available on YouTube
+since any browser is capable of playing a YouTube video.
+Video files can be uploaded manually...
+
+<p>
+The <a href="http://code.google.com/p/youtube-upload"><tt>youtube-upload</tt></a> script by
+Arnau Sanchez automates uploading a video to YouTube.
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; youtube-upload --email<span style="color: #666666">=</span>myemail@gmail.com <span style="color: #BB6622; font-weight: bold">\ </span>
+                     --password<span style="color: #666666">=</span>mypassword <span style="color: #BB6622; font-weight: bold">\ </span>
+                     --title<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Wave Motion in Discontinuous Media&quot;</span> <span style="color: #BB6622; font-weight: bold">\ </span>
+                     --description<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Finite difference method&quot;</span> <span style="color: #BB6622; font-weight: bold">\ </span>
+                     --category<span style="color: #666666">=</span>Science <span style="color: #BB6622; font-weight: bold">\ </span>
+                     --keywords<span style="color: #666666">=</span><span style="color: #BA2121">&quot;finite differences, waves&quot;</span> <span style="color: #BB6622; font-weight: bold">\ </span>
+                     movie1.flv
+</pre></div>
+<p>
+How can we know the address of this movie?
+
+<p>
+<!-- @@@CODE src-animate/youtube-upload -->
+
+<h3>Uploading a video to Vimeo  <a name="___sec7"></a></h3>
+
+<h3>Playing a sequence of image files in HTML/JavaScript  <a name="___sec8"></a></h3>
+
+<p>
+A web page can play a series of image files as an animation with the
+aid of some JavaScript code. A typical example on such code goes
+as
+
+<p>
+
+<!-- code=js (from !bc jscod) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #666666">&lt;</span>script language<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Javascript&quot;</span><span style="color: #666666">&gt;</span>
+<span style="color: #408080; font-style: italic">&lt;!--</span><span style="color: #666666">-</span>
+<span style="color: #008000; font-weight: bold">var</span> num_images_movie <span style="color: #666666">=</span> <span style="color: #666666">321</span>;
+<span style="color: #008000; font-weight: bold">var</span> img_width <span style="color: #666666">=</span> <span style="color: #666666">800</span>;
+<span style="color: #008000; font-weight: bold">var</span> img_height <span style="color: #666666">=</span> <span style="color: #666666">600</span>;
+<span style="color: #008000; font-weight: bold">var</span> interval <span style="color: #666666">=</span> <span style="color: #666666">300</span>;
+<span style="color: #008000; font-weight: bold">var</span> images_movie <span style="color: #666666">=</span> <span style="color: #008000; font-weight: bold">new</span> <span style="color: #008000">Array</span>();
+
+<span style="color: #008000; font-weight: bold">function</span> preload_images_movie()
+{
+   t <span style="color: #666666">=</span> <span style="color: #008000">document</span>.getElementById(<span style="color: #BA2121">&quot;progress&quot;</span>);
+
+   t.innerHTML <span style="color: #666666">=</span> <span style="color: #BA2121">&quot;Preloading image &quot;</span>;
+   images_movie[<span style="color: #666666">0</span>] <span style="color: #666666">=</span> <span style="color: #008000; font-weight: bold">new</span> Image(img_width, img_height);
+   images_movie[<span style="color: #666666">0</span>].src <span style="color: #666666">=</span> <span style="color: #BA2121">&quot;frames/frame_0000.png&quot;</span>;
+
+   t.innerHTML <span style="color: #666666">=</span> <span style="color: #BA2121">&quot;Preloading image &quot;</span>;
+   images_movie[<span style="color: #666666">1</span>] <span style="color: #666666">=</span> <span style="color: #008000; font-weight: bold">new</span> Image(img_width, img_height);
+   images_movie[<span style="color: #666666">1</span>].src <span style="color: #666666">=</span> <span style="color: #BA2121">&quot;frames/frame_0001.png&quot;</span>;
+
+   ...
+   t.innerHTML <span style="color: #666666">=</span> <span style="color: #BA2121">&quot;Preloading image &quot;</span>;
+   images_movie[<span style="color: #666666">320</span>] <span style="color: #666666">=</span> <span style="color: #008000; font-weight: bold">new</span> Image(img_width, img_height);
+   images_movie[<span style="color: #666666">320</span>].src <span style="color: #666666">=</span> <span style="color: #BA2121">&quot;frames/frame_0320.png&quot;</span>;
+
+   t.innerHTML <span style="color: #666666">=</span> <span style="color: #BA2121">&quot;&quot;</span>;
+}
+
+<span style="color: #008000; font-weight: bold">function</span> tick_movie()
+{
+   <span style="color: #008000; font-weight: bold">if</span> (frame_movie <span style="color: #666666">&gt;</span> num_images_movie <span style="color: #666666">-</span> <span style="color: #666666">1</span>)
+       frame_movie <span style="color: #666666">=</span> <span style="color: #666666">0</span>;
+
+   <span style="color: #008000">document</span>.movie.src <span style="color: #666666">=</span> images_movie[frame_movie].src;
+   frame_movie <span style="color: #666666">+=</span> <span style="color: #666666">1</span>;
+   tt <span style="color: #666666">=</span> setTimeout(<span style="color: #BA2121">&quot;tick_movie()&quot;</span>, interval);
+}
+</pre></div>
+<p>
+Some buttons for controls can easily be added:
+
+<p>
+
+<!-- code=html (from !bc htmlcod) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">&lt;form&gt;</span>
+<span style="color: #999999; font-weight: bold">&amp;nbsp;</span>
+<span style="color: #008000; font-weight: bold">&lt;input</span> <span style="color: #7D9029">type=</span><span style="color: #BA2121">&quot;button&quot;</span> <span style="color: #7D9029">value=</span><span style="color: #BA2121">&quot;Start movie&quot;</span> <span style="color: #7D9029">onClick=</span><span style="color: #BA2121">&quot;startup_movie()&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;input</span> <span style="color: #7D9029">type=</span><span style="color: #BA2121">&quot;button&quot;</span> <span style="color: #7D9029">value=</span><span style="color: #BA2121">&quot;Pause movie&quot;</span> <span style="color: #7D9029">onClick=</span><span style="color: #BA2121">&quot;stopit()&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;input</span> <span style="color: #7D9029">type=</span><span style="color: #BA2121">&quot;button&quot;</span> <span style="color: #7D9029">value=</span><span style="color: #BA2121">&quot;Restart movie&quot;</span> <span style="color: #7D9029">onClick=</span><span style="color: #BA2121">&quot;restart_movie()&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #999999; font-weight: bold">&amp;nbsp;</span>
+<span style="color: #008000; font-weight: bold">&lt;input</span> <span style="color: #7D9029">type=</span><span style="color: #BA2121">&quot;button&quot;</span> <span style="color: #7D9029">value=</span><span style="color: #BA2121">&quot;Slower&quot;</span> <span style="color: #7D9029">onClick=</span><span style="color: #BA2121">&quot;slower()&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;input</span> <span style="color: #7D9029">type=</span><span style="color: #BA2121">&quot;button&quot;</span> <span style="color: #7D9029">value=</span><span style="color: #BA2121">&quot;Faster&quot;</span> <span style="color: #7D9029">onClick=</span><span style="color: #BA2121">&quot;faster()&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;/form&gt;</span>
+
+<span style="color: #008000; font-weight: bold">&lt;p&gt;&lt;div</span> <span style="color: #7D9029">ID=</span><span style="color: #BA2121">&quot;progress&quot;</span><span style="color: #008000; font-weight: bold">&gt;&lt;/div&gt;&lt;/p&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;img</span> <span style="color: #7D9029">src=</span><span style="color: #BA2121">&quot;frames/frame_0000.png&quot;</span> <span style="color: #7D9029">name=</span><span style="color: #BA2121">&quot;movie&quot;</span> <span style="color: #7D9029">border=</span><span style="color: #BA2121">2/</span><span style="color: #008000; font-weight: bold">&gt;</span>
+</pre></div>
+<p>
+where the JavaScript functions called by the buttons are defined as
+
+<p>
+
+<!-- code=js (from !bc jscod) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">function</span> startup_movie()
+{
+   preload_images_movie();
+   frame_movie <span style="color: #666666">=</span> <span style="color: #666666">0</span>;
+   setTimeout(<span style="color: #BA2121">&quot;tick_movie()&quot;</span>, interval);
+}
+
+<span style="color: #008000; font-weight: bold">function</span> stopit()
+{ clearTimeout(tt); }
+
+<span style="color: #008000; font-weight: bold">function</span> restart_movie()
+{ tt <span style="color: #666666">=</span> setTimeout(<span style="color: #BA2121">&quot;tick_movie()&quot;</span>, interval); }
+
+<span style="color: #008000; font-weight: bold">function</span> slower()
+{ interval <span style="color: #666666">=</span> interval<span style="color: #666666">/0.7</span>; }
+
+<span style="color: #008000; font-weight: bold">function</span> faster()
+{ interval <span style="color: #666666">=</span> interval<span style="color: #666666">*0.7</span>; }
+<span style="color: #666666">&lt;</span>/script&gt;
+</pre></div>
+<p>
+The program <a href="$path2animate_src/html_player.py"><tt>html_player.py</tt></a>
+generates this type of JavaScript code and is run like
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; python html_player.py frames/frame_*.png &gt; player.html
+</pre></div>
+<p>
+You can now load <code>player.html</code> into a browser to see the movie.
+
+<h2>Displaying movies  <a name="___sec9"></a></h2>
+
+<h3>HTML5 <code>video</code> tag  <a name="___sec10"></a></h3>
+
+<p>
+To display a specific video file, say <code>movie1.webm</code>, the relevant
+HTML5 command is
+
+<p>
+
+<!-- code=html (from !bc htmlcod) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">&lt;video</span> <span style="color: #7D9029">autoplay</span> <span style="color: #7D9029">loop</span> <span style="color: #7D9029">controls</span>
+       <span style="color: #7D9029">width=</span><span style="color: #BA2121">&#39;640&#39;</span> <span style="color: #7D9029">height=</span><span style="color: #BA2121">&#39;365&#39;</span> <span style="color: #7D9029">preload=</span><span style="color: #BA2121">&#39;none&#39;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;source</span> <span style="color: #7D9029">src=</span><span style="color: #BA2121">&#39;movie1.webm&#39;</span>  <span style="color: #7D9029">type=</span><span style="color: #BA2121">&#39;video/webm; codecs=&quot;vp8, vorbis&quot;&#39;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;/video&gt;</span>
+</pre></div>
+<p>
+The <code>autoplay</code> command makes the video play when the page is loaded.
+You may not want this feature. The <code>loop</code> command causes the video to
+repeat forever, while <code>controls</code> inserts some basic controls for
+playing, pausing, full screen viewing, etc.
+
+<p>
+The fundamental problem with the <code>video</code> tag in HTML5 is that
+it does not work with any format in any browser on any type of device.
+A common recommendation is to make the videos in three formats,
+MP4, WebM, and Ogg, and specify all three as possible formats:
+
+<p>
+
+<!-- code=html (from !bc htmlcod) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">&lt;div&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;video</span> <span style="color: #7D9029">autoplay</span> <span style="color: #7D9029">loop</span> <span style="color: #7D9029">controls</span>
+       <span style="color: #7D9029">width=</span><span style="color: #BA2121">&#39;640&#39;</span> <span style="color: #7D9029">height=</span><span style="color: #BA2121">&#39;365&#39;</span> <span style="color: #7D9029">preload=</span><span style="color: #BA2121">&#39;none&#39;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;source</span> <span style="color: #7D9029">src=</span><span style="color: #BA2121">&#39;movie1.mp4&#39;</span>  <span style="color: #7D9029">type=</span><span style="color: #BA2121">&#39;video/mp4;</span>
+<span style="color: #BA2121">        codecs=&quot;avc1.42E01E, mp4a.40.2&quot;&#39;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;source</span> <span style="color: #7D9029">src=</span><span style="color: #BA2121">&#39;movie1.webm&#39;</span> <span style="color: #7D9029">type=</span><span style="color: #BA2121">&#39;video/webm;</span>
+<span style="color: #BA2121">        codecs=&quot;vp8, vorbis&quot;&#39;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;source</span> <span style="color: #7D9029">src=</span><span style="color: #BA2121">&#39;movie1.ogg&#39;</span>  <span style="color: #7D9029">type=</span><span style="color: #BA2121">&#39;video/ogg;</span>
+<span style="color: #BA2121">        codecs=&quot;theora, vorbis&quot;&#39;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;/video&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;/div&gt;</span>
+</pre></div>
+<p>
+The MP4 file is specified first, because on iOS devices (iPhone/iPad)
+only one source is loaded, but these devices play MP4 files.
+
+<h3>Classic HTML <code>embed</code> tag  <a name="___sec11"></a></h3>
+
+<p>
+Prior to HTML5 one used the <code>embed</code> tag to embed movies. The browser
+then relies on some player on the system. Successful playing of a video
+relies on
+correct configuration of the browser with an appropriate movie player.
+The <code>embed</code> tag looks like
+
+<p>
+
+<!-- code=html (from !bc htmlcod) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">&lt;embed</span> <span style="color: #7D9029">src=</span><span style="color: #BA2121">&quot;movie1.mpeg&quot;</span> <span style="color: #7D9029">width=</span><span style="color: #BA2121">&#39;640&#39;</span> <span style="color: #7D9029">height=</span><span style="color: #BA2121">&#39;365&#39;</span>
+       <span style="color: #7D9029">autoplay=</span><span style="color: #BA2121">&quot;true&quot;</span> <span style="color: #7D9029">loop=</span><span style="color: #BA2121">&quot;true&quot;</span><span style="color: #008000; font-weight: bold">&gt;&lt;/embed&gt;</span>
+</pre></div>
+
+<h3>Emedding YouTube and Vimeo movies in HTML  <a name="___sec12"></a></h3>
+
+<h3>Embedding movies in LaTeX-generated PDF files  <a name="___sec13"></a></h3>
+
+<p>
+media9
+
+<h2>Appendix: Software installation  <a name="___sec14"></a></h2>
+
+<h3>Ubuntu/Debian  <a name="___sec15"></a></h3>
+
+<p>
+
+<ul>
+ <li> List the necessary packages, must probably tested in a clean
+   vagrant box to see what is sufficient.</li>
+ <li> Check <a href="https://help.ubuntu.com/community/Medibuntu"><tt>https://help.ubuntu.com/community/Medibuntu</tt></a></li>
+</ul>
+
+<p>
+
+<!-- code=text typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; sudo apt-get install -y libavcodec-extra-53 libx264-dev \ 
+          x264 h264enc ffmpeg libav-tools
+Terminal&gt; sudo apt-get install -y mplayer gnome-mplayer mencoder \ 
+          totem totem-plugins totem-mozilla vlc browser-plugin-vlc \ 
+          gxine python-pyxine xine-plugin libxine2-dev \ 
+          libxine2-all-plugins gxine-plugin libxine2-ffmpeg
+Terminal&gt; sudo apt-get install -y swfdec-gnome flashplugin-installer
+</pre></div>
+<p>
+
+<!-- ------------------- end of main content --------------- -->
+
+
+</body>
+</html>
+    
+

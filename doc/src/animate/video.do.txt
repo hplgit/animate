@@ -5,6 +5,7 @@ DATE: today
 
 <%
 path2frames = '../../../test/frames'
+path2animate_src = 'https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate'
 %>
 
 __Summary.__
@@ -70,9 +71,18 @@ frame, so if we want 12 frames per second, the delay becomes $100/12
 \approx 8$. One can add the option `-loop 0` to make the animation
 repeat forever.
 
+The animated GIF file is displayed through an ordinary image tag
+in HTML: `<img src="demo_convert.gif" width=500>`.
+Alternatively, one can run `animate demo_convert.gif` to watch the
+movie on the screen.
+
 With a lot of frames, especially when each frame has a significant size,
 `convert` needs substantial computational resources to make the animated
-GIF file, and the filesize easily becomes huge.
+GIF file, and the filesize easily becomes huge (essentially the sum
+of the GIF versions of the PNG files in this example). The
+corresponding loading time in HTML or in the `animate` application
+is significant. Hence, animated GIF files are best suited for smaller
+file collections.
 
 [hpl: `convert` is killed when trying to make the demo animation; it is too big
 for my Mac 11''.]
@@ -110,14 +120,19 @@ Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
           -vcodec libx264 -x264opts movie1.mp4
 !ec
 The option for the audio codec (`-acodec`) can be skipped when there is
-not sound.
+not sound. The `-x64opts` does not work on all platforms. [hpl: Be specific!
+It appears here and there, but does not work on Ubuntu.]
 
-The resulting file can be shown in a video player, such as `vlc`, `mplayer`,
-or `totem` on Linux platforms:
+The resulting file can be shown in a video player, such as
+"`vlc`": "http://www.videolan.org/vlc/index.html",
+"`mplayer`": "http://www.mplayerhq.hu/design7/news.html",
+"`gxine`": "http://www.xine-project.org/home", or
+"`totem`": "http://projects.gnome.org/totem/" on Linux platforms:
 
 !bc sys
 Terminal> vlc movie1.mp4
 Terminal> mplayer movie1.mp4
+Terminal> gxine movie1.mp4
 Terminal> totem movie1.mp4
 !ec
 
@@ -177,9 +192,114 @@ Video files can be uploaded manually...
 The "`youtube-upload`": "http://code.google.com/p/youtube-upload" script by
 Arnau Sanchez automates uploading a video to YouTube.
 
-@@@CODE src-animate/youtube-upload
+!bc sys
+Terminal> youtube-upload --email=myemail@gmail.com \
+                     --password=mypassword \
+                     --title="Wave Motion in Discontinuous Media" \
+                     --description="Finite difference method" \
+                     --category=Science \
+                     --keywords="finite differences, waves" \
+                     movie1.flv
+!ec
+How can we know the address of this movie?
+
+#@@@CODE src-animate/youtube-upload
 
 ===== Uploading a video to Vimeo =====
+
+===== Playing a sequence of image files in HTML/JavaScript =====
+
+A web page can play a series of image files as an animation with the
+aid of some JavaScript code. A typical example on such code goes
+as
+
+!bc jscod
+<script language="Javascript">
+<!---
+var num_images_movie = 321;
+var img_width = 800;
+var img_height = 600;
+var interval = 300;
+var images_movie = new Array();
+
+function preload_images_movie()
+{
+   t = document.getElementById("progress");
+
+   t.innerHTML = "Preloading image ";
+   images_movie[0] = new Image(img_width, img_height);
+   images_movie[0].src = "frames/frame_0000.png";
+
+   t.innerHTML = "Preloading image ";
+   images_movie[1] = new Image(img_width, img_height);
+   images_movie[1].src = "frames/frame_0001.png";
+
+   ...
+   t.innerHTML = "Preloading image ";
+   images_movie[320] = new Image(img_width, img_height);
+   images_movie[320].src = "frames/frame_0320.png";
+
+   t.innerHTML = "";
+}
+
+function tick_movie()
+{
+   if (frame_movie > num_images_movie - 1)
+       frame_movie = 0;
+
+   document.movie.src = images_movie[frame_movie].src;
+   frame_movie += 1;
+   tt = setTimeout("tick_movie()", interval);
+}
+!ec
+Some buttons for controls can easily be added:
+
+!bc htmlcod
+<form>
+&nbsp;
+<input type="button" value="Start movie" onClick="startup_movie()">
+<input type="button" value="Pause movie" onClick="stopit()">
+<input type="button" value="Restart movie" onClick="restart_movie()">
+&nbsp;
+<input type="button" value="Slower" onClick="slower()">
+<input type="button" value="Faster" onClick="faster()">
+</form>
+
+<p><div ID="progress"></div></p>
+<img src="frames/frame_0000.png" name="movie" border=2/>
+!ec
+where the JavaScript functions called by the buttons are defined as
+
+!bc jscod
+function startup_movie()
+{
+   preload_images_movie();
+   frame_movie = 0;
+   setTimeout("tick_movie()", interval);
+}
+
+function stopit()
+{ clearTimeout(tt); }
+
+function restart_movie()
+{ tt = setTimeout("tick_movie()", interval); }
+
+function slower()
+{ interval = interval/0.7; }
+
+function faster()
+{ interval = interval*0.7; }
+</script>
+!ec
+
+The program "`html_player.py`": "$path2animate_src/html_player.py"
+generates this type of JavaScript code and is run like
+
+!bc sys
+Terminal> python html_player.py frames/frame_*.png > player.html
+!ec
+You can now load `player.html` into a browser to see the movie.
+
 
 ======= Displaying movies =======
 
@@ -233,4 +353,27 @@ The `embed` tag looks like
        autoplay="true" loop="true"></embed>
 !ec
 
+===== Emedding YouTube and Vimeo movies in HTML =====
 
+
+===== Embedding movies in LaTeX-generated PDF files =====
+
+media9
+
+======= Appendix: Software installation =======
+
+===== Ubuntu/Debian =====
+
+ * List the necessary packages, must probably tested in a clean
+   vagrant box to see what is sufficient.
+ * Check URL: "https://help.ubuntu.com/community/Medibuntu"
+
+!bc
+Terminal> sudo apt-get install -y libavcodec-extra-53 libx264-dev \
+          x264 h264enc ffmpeg libav-tools
+Terminal> sudo apt-get install -y mplayer gnome-mplayer mencoder \
+          totem totem-plugins totem-mozilla vlc browser-plugin-vlc \
+          gxine python-pyxine xine-plugin libxine2-dev \
+          libxine2-all-plugins gxine-plugin libxine2-ffmpeg
+Terminal> sudo apt-get install -y swfdec-gnome flashplugin-installer
+!ec

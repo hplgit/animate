@@ -2,6 +2,10 @@
 
 sudo apt-get update
 
+# Short cut: should be tested in a vagrant box
+#sudo apt-get install -y libavcodec-extra-53 libx264-dev x264 h264enc ffmpeg libav-tools
+# sudo apt-get install -y mplayer gnome-mplayer mencoder totem totem-plugins totem-mozilla vlc browser-plugin-vlc
+
 sudo apt-get -y install autoconf automake build-essential git \
      libass-dev libfaac-dev libgpac-dev libmp3lame-dev \
      libsdl1.2-dev libtheora-dev libtool libva-dev \

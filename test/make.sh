@@ -19,6 +19,7 @@ ffmpeg -i frames/frame_%04d.png -r 12 movie1.mp4
 ffmpeg -i frames/frame_%04d.png -r 12 -vcodec libx264 movie1.mp4
 # Problem 1: low quality with some red mirror line and the
 # curve is in black instead of red as in the plotfile
+# Problem 2: Does not recognize libx264 (but at some point it did!)
 # Plays in HTML5
 
 # Can convert from .mp4 to .ogg
@@ -39,6 +40,7 @@ ffmpeg -i frames/frame_%04d.png -r 12 -acodec libvorbis -vcodec libtheora movie1
 ffmpeg -i frames/frame_%04d.png -r 12 -acodec libvorbis -vcodec libvpx movie1.webm
 # Problem: mplayer and vlc show the disturbing mirrored red line and the
 # curve is in black instead of red as in the plotfile
+# totem and gxine work fine (perfect red curve)
 
 # Flash
 ffmpeg -i frames/frame_%04d.png -r 12 -vcodec flv movie1.flv
