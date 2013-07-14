@@ -3,6 +3,8 @@ AUTHOR: Hans Petter Langtangen at Center for Biomedical Computing, Simula Resear
 AUTHOR: Johannes Ring at Center for Biomedical Computing, Simula Research Laboratory
 DATE: today
 
+_Under construction!_
+
 <%
 path2frames = '../../../test/frames'
 path2animate_src = 'https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate'
@@ -41,6 +43,34 @@ important if we want a Unix wildcard notation `frame_*.png` to list
 the files in correct order (without padding, `frame_21.png` appears
 before `frame_2.png` in a standard alphanumeric sorting).
 
+We assume in the following that all our frames are stored as files
+`frame_*.png` in a subdirectory `frames`.
+
+!bc sys
+Terminal> ls -1 frames
+frame_0000.png
+frame_0001.png
+frame_0002.png
+frame_0003.png
+frame_0004.png
+frame_0005.png
+frame_0006.png
+frame_0007.png
+frame_0008.png
+frame_0009.png
+frame_0010.png
+frame_0011.png
+...
+frame_0313.png
+frame_0314.png
+frame_0315.png
+frame_0316.png
+frame_0317.png
+frame_0318.png
+frame_0319.png
+frame_0320.png
+!ec
+
 __Video formats.__
 The relevant video formats are dictated by the media we want to use to
 display the video. In web pages, modern HTML5 has support for video,
@@ -54,6 +84,10 @@ Acrobat Reader version 9 and later.
 
 
 ======= Creating movies =======
+
+The following text provides a lot of Unix commands for creating movies
+as batch processes. All commands are collected in the shell script
+"`session.sh`": "${path2animate_src}/session.sh".
 
 ===== Animate GIF file =====
 
@@ -72,9 +106,15 @@ frame, so if we want 12 frames per second, the delay becomes $100/12
 repeat forever.
 
 The animated GIF file is displayed through an ordinary image tag
-in HTML: `<img src="demo_convert.gif" width=500>`.
+in HTML:
+
+!bc htmlcod
+<img src="demo_convert.gif" width=500>
+!ec
 Alternatively, one can run `animate demo_convert.gif` to watch the
 movie on the screen.
+
+FIGURE: [mov-animate/demo.gif, width=400] Animated GIF file.
 
 With a lot of frames, especially when each frame has a significant size,
 `convert` needs substantial computational resources to make the animated
@@ -168,20 +208,43 @@ Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
           -vcodec flv movie1.flv
 !ec
 
-The command `ffmpeg -codecs` lists all available codecs. [hpl: All installed
+The command `ffmpeg -codecs` lists all available codecs.
+[hpl: All installed
 or all available in theory?]
 
 ===== Using `avconv` to make MP4, WebM, Ogg, and Flash files =====
 
 Exactly the same commands as for `ffmpeg`.
 
+
 ===== Using `mencoder` to make MP4, WebM, and Ogg files =====
 
-[hpl: No idea about the commands.]
+Below are some collected sketches of how to work with mencoder...
+
+!bc sys
+cmd = "mencoder mf://tmp/* -mf type=%(TYPE)s:fps=%(FPS)f -o "%(OUT)s" -ovc lavc "
+cmd % { 'FPS': (1.0/options.spf),
+        'OUT': options.out,
+	'TYPE': imagetype }
+
+
+
+mencoder -vf -ovc x264 -x264encopts -lavfopts format=mp4 -o movie.mp4
+
+Terminal> mencoder 'mf://*.jpg' -mf fps=25 -o output.avi \
+          -ovc lavc -lacvopts vcodec=msmpeg4v2
+Terminal> mencoder 'mf://animation/*.png' -mf fps=25:type=png \
+          -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o huygen.avi
+Terminal> mencoder 'mf://*.png' -mf type=png:fps=10 -ovc \
+          lavc -lavcopts vcodec=wmv2 -oac copy -o animation.avi
+Terminal> mencoder mf://*.png -mf type=png:w=800:h=600:fps=25 \
+          -ovc lavc -lavcopts vcodec=mpeg4 -oac copy -o output.avi  # older
+!ec
 
  * URL: "http://forums.bakabt.me/index.php?topic=13304.0"
  * URL: "http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html"
  * URL: "http://www.mplayerhq.hu/DOCS/HTML/en/encoding-guide.html"
+
 
 ===== Uploading a video to YouTube =====
 
@@ -207,6 +270,8 @@ How can we know the address of this movie?
 
 ===== Uploading a video to Vimeo =====
 
+[hpl: Possible, but no user-friendly script found.]
+
 ===== Playing a sequence of image files in HTML/JavaScript =====
 
 A web page can play a series of image files as an animation with the
@@ -215,7 +280,6 @@ as
 
 !bc jscod
 <script language="Javascript">
-<!---
 var num_images_movie = 321;
 var img_width = 800;
 var img_height = 600;
@@ -292,13 +356,14 @@ function faster()
 </script>
 !ec
 
-The program "`html_player.py`": "$path2animate_src/html_player.py"
+The program "`html_player.py`": "${path2animate_src}/html_player.py"
 generates this type of JavaScript code and is run like
 
 !bc sys
 Terminal> python html_player.py frames/frame_*.png > player.html
 !ec
-You can now load `player.html` into a browser to see the movie.
+You can now load `player.html` into a browser to see the movie, or
+click "here": "mov-animate/demo.html".
 
 
 ======= Displaying movies =======
@@ -364,7 +429,7 @@ media9
 
 ===== Ubuntu/Debian =====
 
- * List the necessary packages, must probably tested in a clean
+ * List the necessary packages, must probably be tested in a clean
    vagrant box to see what is sufficient.
  * Check URL: "https://help.ubuntu.com/community/Medibuntu"
 
@@ -377,3 +442,9 @@ Terminal> sudo apt-get install -y mplayer gnome-mplayer mencoder \
           libxine2-all-plugins gxine-plugin libxine2-ffmpeg
 Terminal> sudo apt-get install -y swfdec-gnome flashplugin-installer
 !ec
+
+Useful links for installing ffmpeg:
+
+ * URL: "https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide"
+ * URL: "http://ubuntuforums.org/showthread.php?t=786095"
+ * URL: "http://stackoverflow.com/questions/9764740/unknown-encoder-libx264"
