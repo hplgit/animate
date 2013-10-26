@@ -134,9 +134,10 @@ name `movie.ext`, in the format
 implied by the extension `.ext`, reads
 
 !bc sys
-Terminal> ffmpeg -r 12 -i frames/frame_%04d.png movie.ext
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png -r 12 movie.ext
 !ec
-The `-r` option specifies the number of frames per second, and `-i`
+The `-r` option specifies the number of frames per second (and should
+come first), while `-i`
 lists the individual frames, with the filenames parameterized
 according to the printf syntax. The relevant extensions are
 `.mp4` for MP4, `.webm` for WebM, and `.ogg` for Ogg.
@@ -159,9 +160,13 @@ The `ffmpeg` command for MP4 movies with the H.264 codec is
 Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
           -vcodec libx264 -x264opts movie1.mp4
 !ec
+The `-r` option governs the number of frames per second, here 12.
+The `-i` option indicates the set of input files, here specified
+with printf syntax (the same syntax as was used to make the files).
 The option for the audio codec (`-acodec`) can be skipped when there is
-not sound. The `-x64opts` does not work on all platforms. [hpl: Be specific!
-It appears here and there, but does not work on Ubuntu.]
+no sound. The `-x64opts` option does not work on all platforms
+(including Ubuntu).
+[hpl: Be specific! It appears here and there, but does not work on Ubuntu.]
 
 The resulting file can be shown in a video player, such as
 "`vlc`": "http://www.videolan.org/vlc/index.html",
@@ -182,7 +187,7 @@ video searching), but `ffmpeg` on Ubuntu does not recognize this option.
 Is it available on Mac?]
 
 [hpl: On my Ubuntu, `ffmpeg` does not recognize the `-x264opts` option.
-It did not recognize `libx64` but suddenly it does.]
+It did not recognize `libx64` but suddenly it did, and later it did not...]
 
 __Creating WebM video.__
 The relevant `ffmpeg` command video in the WebM format is
@@ -433,7 +438,7 @@ media9
    vagrant box to see what is sufficient.
  * Check URL: "https://help.ubuntu.com/community/Medibuntu"
 
-!bc
+!bc sys
 Terminal> sudo apt-get install -y libavcodec-extra-53 libx264-dev \
           x264 h264enc ffmpeg libav-tools
 Terminal> sudo apt-get install -y mplayer gnome-mplayer mencoder \
@@ -441,6 +446,39 @@ Terminal> sudo apt-get install -y mplayer gnome-mplayer mencoder \
           gxine python-pyxine xine-plugin libxine2-dev \
           libxine2-all-plugins gxine-plugin libxine2-ffmpeg
 Terminal> sudo apt-get install -y swfdec-gnome flashplugin-installer
+!ec
+
+Problems may arise for `ffmpeg` or `avconv` run with `libx264`.
+If that encoder cannot be find, try a manual installation as
+described next.
+
+[hpl: This did not work for me on Ubuntu 12.04.]
+
+!bc bashpro
+# Remove existing libx264 libs
+sudo apt-get remove libx264-dev libx264-120
+
+# Compile source in a new directory
+mkdir ~/avconv-source
+cd ~/avconv-source
+
+git clone git://git.videolan.org/x264.git
+cd x264
+./configure --enable-static --disable-asm
+make
+sudo make install
+cd ..
+
+git clone git://git.libav.org/libav.git
+cd libav
+./configure
+./configure --enable-gpl --enable-static --enable-shared \
+            --enable-libx264 --enable-libvpx --enable-libtheora
+make
+sudo make install
+cd ..
+
+# avconv -i test.mov -c:v libx264 -c:a copy test.mp4
 !ec
 
 Useful links for installing ffmpeg:
