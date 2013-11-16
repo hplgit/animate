@@ -255,6 +255,7 @@ Terminal> mencoder mf://*.png -mf type=png:w=800:h=600:fps=25 \
 
 The easiest way of playing a movie is to have it available on YouTube
 since any browser is capable of playing a YouTube video.
+
 Video files can be uploaded manually...
 
 The "`youtube-upload`": "http://code.google.com/p/youtube-upload" script by
@@ -269,7 +270,23 @@ Terminal> youtube-upload --email=myemail@gmail.com \
                      --keywords="finite differences, waves" \
                      movie1.flv
 !ec
-How can we know the address of this movie?
+The web URL of the movie appears as output from the script.
+
+=== Dependencies ===
+
+See the README file.
+
+=== YouTube channels ===
+
+Many will prefer to use a dedicated YouTube channel with its own
+name for publishing certain types of movies. To make a channel, go to
+"youtube.com": "http://www.youtube.com", sign in with your Google account,
+click on the down arrow to the right of your your icon/picture,
+choose *All my channels* to see your YouTube channels, click *Create a
+new channel*, and fill in the fields. You will receive an email
+where the "from" address contains the mail address of the new channel
+that can be used when uploading movies via the `youtube-upload` script.
+
 
 #@@@CODE src-animate/youtube-upload
 
