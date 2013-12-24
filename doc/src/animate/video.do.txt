@@ -451,6 +451,8 @@ media9
 
 ===== Ubuntu/Debian =====
 
+Just this worked on Mac 15: sudo apt-get install libavcodec-extra-53 libavcodec-extra-53 libx264-dev
+
  * List the necessary packages, must probably be tested in a clean
    vagrant box to see what is sufficient.
  * Check URL: "https://help.ubuntu.com/community/Medibuntu"
