@@ -1,0 +1,5 @@
+This dir contains files for experimenting with making and displaying movies.
+
+make.sh: various commands for making movies.
+
+test.html: various HTML constructs for displaying movies.

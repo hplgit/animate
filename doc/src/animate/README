@@ -1,0 +1,7 @@
+The frames (frame*.png) for testing various movie constructions are
+in src-animate/testfiles/frames.
+
+The script sessions.sh creates new movies in testfiles.
+Official versions of the movies and the frames are in mov-animate.
+
+The published version of the documentation is in ../pub.
