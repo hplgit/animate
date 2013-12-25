@@ -476,9 +476,37 @@ media9
 
 ===== Ubuntu/Debian =====
 
- * List the necessary packages, must probably be tested in a clean
-   vagrant box to see what is sufficient.
- * Check URL: "https://help.ubuntu.com/community/Medibuntu"
+Just this worked on Mac 15: sudo apt-get install libavcodec-extra-53 libx264-dev
+
+redo mp4 pulse1D movie, test if movies works better in html, test if it works with latex, make movies.sh script for generating demos
+Write the general install command
+check if x264 and h264enc are installed
+List packages for ffmpeg/avconv and codecs
+List players
+Make complete install script a la that under vagrant
+Update vagrant scripts with these packages
+Link the most advanced vagrant script from machines.do.txt for new ubuntu
+
+# Installation scripts are made by the deb2sh.py script in vagrantbox,
+# in particular the relevant animation packages are in debpkg_rich.txt.
+# Copying relevant parts of the generated Bash and Python scripts
+# made the install_animation_tools.* scripts below
+
+Install scripts in
+"Bash": "https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/install_animation_tools.sh" and
+"Python": "https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/install_animation_tools.py".
+
+
+!bc shpro
+!ec
+
+!bc pypro
+!ec
+
+List the necessary packages, must probably be tested in a clean
+vagrant box to see what is sufficient.
+
+Check URL: "https://help.ubuntu.com/community/Medibuntu"
 
 !bc sys
 Terminal> sudo apt-get install -y libavcodec-extra-53 libx264-dev \
