@@ -35,7 +35,7 @@ MOVIE: [mov-animate/demo.ogg]
 
 __Filenames.__
 In the forthcoming examples, the individual plot files are stored in a
-subdirectory `frames` and have filenames `frame_0000.png`,
+subdirectory "`frames`": "https://github.com/hplgit/animate/tree/master/doc/src/animate/src-animate/testfiles/frames" and have filenames `frame_0000.png`,
 `frame_0001.png`, `frame_0002.png`, and so on. The plot files were
 generated in some program that used the printf syntax `frame_%04d.png`
 to specify the filenames. Note that the padding with zeros is
@@ -127,7 +127,7 @@ file collections.
 [hpl: `convert` is killed when trying to make the demo animation; it is too big
 for my Mac 11''.]
 
-===== Using `ffmpeg` to make MP4, WebM, Ogg, and Flash files =====
+===== Using `ffmpeg` to make MP4, WebM, Ogg, Flash, AVI, and MPEG files =====
 
 The basic `ffmpeg` command for producing a movie file with
 name `movie.ext`, in the format
@@ -165,14 +165,20 @@ The `-i` option indicates the set of input files, here specified
 with printf syntax (the same syntax as was used to make the files).
 The option for the audio codec (`-acodec`) can be skipped when there is
 no sound. The `-x64opts` option does not work on all platforms
-(including Ubuntu).
-[hpl: Be specific! It appears here and there, but does not work on Ubuntu.]
+(Ubuntu is one of them).
+If `libx264` is not found, or hard to install, `ffmpeg` can generate
+MP4 movies without specifying the codec:
+
+!bc sys
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png movie1.mp4
+!ec
 
 The resulting file can be shown in a video player, such as
 "`vlc`": "http://www.videolan.org/vlc/index.html",
 "`mplayer`": "http://www.mplayerhq.hu/design7/news.html",
 "`gxine`": "http://www.xine-project.org/home", or
 "`totem`": "http://projects.gnome.org/totem/" on Linux platforms:
+[hpl: add mac here, test in windows media player]
 
 !bc sys
 Terminal> vlc movie1.mp4
@@ -213,9 +219,28 @@ Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
           -vcodec flv movie1.flv
 !ec
 
+__Creating AVI video.__
+The AVI format is produced by the command
+
+!bc sys
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
+          -vcodec mpeg4 movie1.avi
+!ec
+
+__Creating MPEG video.__
+The MPEG format does not allow the frame rate to be specified and
+there is no need for specifying the code:
+
+!bc sys
+Terminal> ffmpeg -i frames/frame_%04d.png movie1.mpeg
+!ec
+
+
+!bnotice How list the available codecs
 The command `ffmpeg -codecs` lists all available codecs.
 [hpl: All installed
 or all available in theory?]
+!enotice
 
 ===== Using `avconv` to make MP4, WebM, Ogg, and Flash files =====
 
