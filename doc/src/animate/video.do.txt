@@ -134,13 +134,17 @@ name `movie.ext`, in the format
 implied by the extension `.ext`, reads
 
 !bc sys
-Terminal> ffmpeg -r 12 -i frames/frame_%04d.png -r 12 movie.ext
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
+          -vcodec libcodec movie.ext
 !ec
-The `-r` option specifies the number of frames per second (and should
-come first), while `-i`
+The `-r` option sets the number of frames per second (and should
+come first), `-i`
 lists the individual frames, with the filenames parameterized
-according to the printf syntax. The relevant extensions are
-`.mp4` for MP4, `.webm` for WebM, and `.ogg` for Ogg.
+according to the printf syntax, and `-vcodec` specifies the
+video codec to be used). The relevant extensions of the movie file are
+`.mp4` for MP4, `.webm` for WebM, `.ogg` for Ogg, '.mpeg' or '.mpg'
+for MPEG, and '.avi' for AVI.
+
 
 Video files are compressed and therefore need a "codec":
 "http://en.wikipedia.org/wiki/Video_codec" to compress and decompress
