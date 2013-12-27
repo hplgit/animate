@@ -7,12 +7,12 @@ rm -rf ${movie}*  # clean up
 # ffmpeg and avconv
 programs="ffmpeg avconv"
 for prog in $programs; do
-$prog -r 12 -i $frames/frame_%04d.png -vcodec libx264   ${movie}_$prog.mp4
-$prog -r 12 -i $frames/frame_%04d.png -vcodec libvpx    ${movie}_$prog.webm
-$prog -r 12 -i $frames/frame_%04d.png -vcodec libtheora ${movie}_$prog.ogg
-$prog -r 12 -i $frames/frame_%04d.png -vcodec flv       ${movie}_$prog.flv
-$prog -r 12 -i $frames/frame_%04d.png -vcodec mpeg4     ${movie}_$prog.avi
-$prog       -i $frames/frame_%04d.png -vcodec mpeg4     ${movie}_$prog.mpeg
+$prog -r 12 -i $frames/frame_%04d.png -c:v libx264   ${movie}_$prog.mp4
+$prog -r 12 -i $frames/frame_%04d.png -c:v libvpx    ${movie}_$prog.webm
+$prog -r 12 -i $frames/frame_%04d.png -c:v libtheora ${movie}_$prog.ogg
+$prog -r 12 -i $frames/frame_%04d.png -c:v flv       ${movie}_$prog.flv
+$prog -r 12 -i $frames/frame_%04d.png                ${movie}_$prog.avi
+$prog       -i $frames/frame_%04d.png -c:v mpeg4     ${movie}_$prog.mpeg
 done
 
 # javascript code
