@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <!--
 Automatically generated HTML file from Doconce source
-(http://code.google.com/p/doconce/)
+(https://github.com/hplgit/doconce/)
 -->
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Doconce: http://code.google.com/p/doconce/" />
+<meta name="generator" content="Doconce: https://github.com/hplgit/doconce/" />
 <meta name="description" content="How to Make Animations from Individual Frames">
 
 
 
 <style type="text/css">
+    /* bloodish style */
+
     body {
       font-family: Helvetica, Verdana, Arial, Sans-serif;
       color: #404040;
       background: #ffffff;
     }
     h1 { font-size: 1.8em;  color: #8A0808; }
-    h2 { font-size: 1.5em;  color: #8A0808; }
-    h3, h4 { color: #8A0808; }
+    h2 { font-size: 1.6em;  color: #8A0808; }
+    h3 { font-size: 1.4em;  color: #8A0808; }
+    h4 { color: #8A0808; }
     a { color: #8A0808; text-decoration:none; }
     tt { font-family: "Courier New", Courier; }
     
@@ -27,6 +30,31 @@ Automatically generated HTML file from Doconce source
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     p.caption { width: 80%; font-style: normal; text-align: left; }
     hr.figure { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    .alert-text-small   { font-size: 80%;  }
+    .alert-text-large   { font-size: 130%; }
+    .alert-text-normal  { font-size: 90%;  }
+    .alert {
+             padding:8px 35px 8px 14px; margin-bottom:18px;
+             text-shadow:0 1px 0 rgba(255,255,255,0.5);
+             border:1px solid #bababa;
+             -webkit-border-radius: 4px; -moz-border-radius: 4px;
+             border-radius: 4px
+             color: #555;
+             background-color: #f8f8f8;
+             background-position: 10px 5px;
+             background-repeat: no-repeat;
+             background-size: 38px;
+             padding-left: 55px;
+             width: 75%;
+     }
+     .alert-block {padding-top:14px; padding-bottom:14px}
+     .alert-block > p, .alert-block > ul {margin-bottom:1em}
+     .alert li {margin-top: 1em}
+     .alert-block p+p {margin-top:5px}
+     .alert-notice { background-image: url(https://raw.github.com/hplgit/doconce/master/bundled/html_images/small_gray_notice.png); }
+     .alert-summary  { background-image:url(https://raw.github.com/hplgit/doconce/master/bundled/html_images/small_gray_summary.png); }
+     .alert-warning { background-image: url(https://raw.github.com/hplgit/doconce/master/bundled/html_images/small_gray_warning.png); }
+     .alert-question {background-image:url(https://raw.github.com/hplgit/doconce/master/bundled/html_images/small_gray_question.png); }
 
 </style>
 
@@ -37,7 +65,7 @@ Automatically generated HTML file from Doconce source
  'sections': [(' Problem setting ', 1, None, '___sec0'),
               (' Creating movies ', 1, None, '___sec1'),
               (' Animate GIF file ', 2, None, '___sec2'),
-              (' Using `ffmpeg` to make MP4, WebM, Ogg, and Flash files ',
+              (' Using `ffmpeg` to make MP4, WebM, Ogg, Flash, AVI, and MPEG files ',
                2,
                None,
                '___sec3'),
@@ -50,24 +78,27 @@ Automatically generated HTML file from Doconce source
                None,
                '___sec5'),
               (' Uploading a video to YouTube ', 2, None, '___sec6'),
-              (' Uploading a video to Vimeo ', 2, None, '___sec7'),
+              (' Dependencies ', 3, None, '___sec7'),
+              (' YouTube channels ', 3, None, '___sec8'),
+              (' Uploading a video to Vimeo ', 2, None, '___sec9'),
               (' Playing a sequence of image files in HTML/JavaScript ',
                2,
                None,
-               '___sec8'),
-              (' Displaying movies ', 1, None, '___sec9'),
-              (' HTML5 `video` tag ', 2, None, '___sec10'),
-              (' Classic HTML `embed` tag ', 2, None, '___sec11'),
+               '___sec10'),
+              (' Displaying movies ', 1, None, '___sec11'),
+              (' HTML5 `video` tag ', 2, None, '___sec12'),
+              (' Classic HTML `embed` tag ', 2, None, '___sec13'),
               (' Emedding YouTube and Vimeo movies in HTML ',
                2,
                None,
-               '___sec12'),
+               '___sec14'),
               (' Embedding movies in LaTeX-generated PDF files ',
                2,
                None,
-               '___sec13'),
-              (' Appendix: Software installation ', 1, None, '___sec14'),
-              (' Ubuntu/Debian ', 2, None, '___sec15')]}
+               '___sec15'),
+              (' Appendix: Software installation ', 1, None, '___sec16'),
+              (' Ubuntu/Debian ', 2, None, '___sec17'),
+              (' Mac OS X ', 2, None, '___sec18')]}
 end of tocinfo -->
 
 <body>
@@ -117,7 +148,7 @@ MathJax.Hub.Config({
 <center>[1] <b>Center for Biomedical Computing, Simula Research Laboratory</b></center>
 <center>[2] <b>Department of Informatics, University of Oslo</b></center>
 <p>
-<center><h4>Jul 14, 2013</h4></center> <!-- date -->
+<center><h4>Dec 28, 2013</h4></center> <!-- date -->
 <p>
 <b>Under construction!</b>
 
@@ -125,7 +156,7 @@ MathJax.Hub.Config({
 <b>Summary.</b> This note explains how to create animations from a series of individual plots.
 The animations are realized in several formats relevant for today's
 web browsers and PDF viewers: animated GIF, MP4, WebM, Ogg, and Flash.
-The tools used to create video files are <code>convert</code>, <code>ffmpeg</code>, <code>avconv</code>,
+The tools used to create video files are <code>convert</code>, <code>ffmpeg</code> or <code>avconv</code>,
 and <code>mencoder</code>.
 
 <h2>Problem setting  <a name="___sec0"></a></h2>
@@ -160,7 +191,7 @@ by a video player on a computer.
 <p>
 <b>Filenames.</b>
 In the forthcoming examples, the individual plot files are stored in a
-subdirectory <code>frames</code> and have filenames <code>frame_0000.png</code>,
+subdirectory <a href="https://github.com/hplgit/animate/tree/master/doc/src/animate/src-animate/testfiles/frames" target="_self"><tt>frames</tt></a> and have filenames <code>frame_0000.png</code>,
 <code>frame_0001.png</code>, <code>frame_0002.png</code>, and so on. The plot files were
 generated in some program that used the printf syntax <code>frame_%04d.png</code>
 to specify the filenames. Note that the padding with zeros is
@@ -215,13 +246,13 @@ Acrobat Reader version 9 and later.
 <p>
 The following text provides a lot of Unix commands for creating movies
 as batch processes. All commands are collected in the shell script
-<a href="https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/session.sh"><tt>session.sh</tt></a>.
+<a href="https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/session.sh" target="_self"><tt>session.sh</tt></a>.
 
 <h3>Animate GIF file  <a name="___sec2"></a></h3>
 
 <p>
-Animated GIF files can be made by the <a href="http://www.imagemagick.org/script/convert.php"><tt>convert</tt></a> program from the
-<a href="http://www.imagemagick.org/script/index.php">ImageMagick</a> suite.
+Animated GIF files can be made by the <a href="http://www.imagemagick.org/script/convert.php" target="_self"><tt>convert</tt></a> program from the
+<a href="http://www.imagemagick.org/script/index.php" target="_self">ImageMagick</a> suite.
 Making an animation with 12 frames per second in the file
 <code>demo_convert.gif</code> is done by
 
@@ -272,7 +303,16 @@ file collections.
 for my Mac 11''.</em>]</font>
 <!-- end inline comment -->
 
-<h3>Using <code>ffmpeg</code> to make MP4, WebM, Ogg, and Flash files  <a name="___sec3"></a></h3>
+<h3>Using <code>ffmpeg</code> to make MP4, WebM, Ogg, Flash, AVI, and MPEG files  <a name="___sec3"></a></h3>
+
+<p>
+<div class="alert alert-block alert-warning alert-text-normal"><b>Warning.</b>
+The <code>ffmpeg</code> program runs on all major platforms, but Debian-based
+Linux systems offers the almost equivalent program <code>avconv</code> instead.
+All <code>ffmpeg</code> commands below work with <code>avconv</code>, just replace the
+program name.
+</div>
+
 
 <p>
 The basic <code>ffmpeg</code> command for producing a movie file with
@@ -282,16 +322,20 @@ implied by the extension <code>.ext</code>, reads
 <p>
 
 <!-- code=bash (from !bc sys) typeset with pygments style "default" -->
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png movie.ext
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png <span style="color: #BB6622; font-weight: bold">\ </span>
+          -c:v libcodec movie.ext
 </pre></div>
 <p>
-The <code>-r</code> option specifies the number of frames per second, and <code>-i</code>
+The <code>-r</code> option sets the number of frames per second (and should
+come first), <code>-i</code>
 lists the individual frames, with the filenames parameterized
-according to the printf syntax. The relevant extensions are
-<code>.mp4</code> for MP4, <code>.webm</code> for WebM, and <code>.ogg</code> for Ogg.
+according to the printf syntax, and <code>-c:v</code> specifies the
+codec for video to be used). The relevant extensions of the movie file are
+<code>.mp4</code> for MP4, <code>.webm</code> for WebM, <code>.ogg</code> for Ogg, '.mpeg' or '.mpg'
+for MPEG, and '.avi' for AVI.
 
 <p>
-Video files are compressed and therefore need a <a href="http://en.wikipedia.org/wiki/Video_codec">codec</a> to compress and decompress
+Video files are compressed and therefore need a <a href="http://en.wikipedia.org/wiki/Video_codec" target="_self">codec</a> to compress and decompress
 the contents. One should specify the codec explicitly to make sure
 the same codec is used for making the movie and for playing it.
 For the MP4 format it is common now to use the H.264 standard,
@@ -309,23 +353,28 @@ The <code>ffmpeg</code> command for MP4 movies with the H.264 codec is
 
 <!-- code=bash (from !bc sys) typeset with pygments style "default" -->
 <div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png <span style="color: #BB6622; font-weight: bold">\ </span>
-          -vcodec libx264 -x264opts movie1.mp4
+          -c:v libx264 movie1.mp4
 </pre></div>
 <p>
-The option for the audio codec (<code>-acodec</code>) can be skipped when there is
-not sound. The <code>-x64opts</code> does not work on all platforms. 
-<!-- begin inline comment -->
-<font color="red">[<b>hpl 2</b>: <em>Be specific!
-It appears here and there, but does not work on Ubuntu.</em>]</font>
-<!-- end inline comment -->
-
+The <code>-r</code> option governs the number of frames per second, here 12.
+The <code>-i</code> option indicates the set of input files, here specified
+with printf syntax (the same syntax as was used to make the files).
+The option for the audio codec (<code>-c:a</code>) can be skipped when there is
+no sound.
+<!-- The <code>-x64opts</code> option does not work on all platforms -->
+<!-- (Ubuntu is one of them). -->
 
 <p>
 The resulting file can be shown in a video player, such as
-<a href="http://www.videolan.org/vlc/index.html"><tt>vlc</tt></a>,
-<a href="http://www.mplayerhq.hu/design7/news.html"><tt>mplayer</tt></a>,
-<a href="http://www.xine-project.org/home"><tt>gxine</tt></a>, or
-<a href="http://projects.gnome.org/totem/"><tt>totem</tt></a> on Linux platforms:
+<a href="http://www.videolan.org/vlc/index.html" target="_self"><tt>vlc</tt></a>,
+<a href="http://www.mplayerhq.hu/design7/news.html" target="_self"><tt>mplayer</tt></a>,
+<a href="http://www.xine-project.org/home" target="_self"><tt>gxine</tt></a>, or
+<a href="http://projects.gnome.org/totem/" target="_self"><tt>totem</tt></a> on Linux platforms:
+
+<!-- begin inline comment -->
+<font color="red">[<b>hpl 2</b>: <em>add mac here, test in windows media player</em>]</font>
+<!-- end inline comment -->
+
 
 <p>
 
@@ -349,7 +398,7 @@ Is it available on Mac?</em>]</font>
 
 <!-- begin inline comment -->
 <font color="red">[<b>hpl 4</b>: <em>On my Ubuntu, <code>ffmpeg</code> does not recognize the <code>-x264opts</code> option.
-It did not recognize <code>libx64</code> but suddenly it does.</em>]</font>
+It did not recognize <code>libx64</code> but suddenly it did, and later it did not...</em>]</font>
 <!-- end inline comment -->
 
 
@@ -361,8 +410,11 @@ The relevant <code>ffmpeg</code> command video in the WebM format is
 
 <!-- code=bash (from !bc sys) typeset with pygments style "default" -->
 <div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png <span style="color: #BB6622; font-weight: bold">\ </span>
-          -acodec libvorbis -vcodec libvpx movie1.webm
+          -c:v libvpx movie1.webm
 </pre></div>
+<p>
+Add <code>-c:a libvorbis</code> if the movie features audio as well.
+
 <p>
 <b>Creating Ogg video.</b>
 The proper <code>ffmpeg</code> command for Ogg video is
@@ -371,8 +423,11 @@ The proper <code>ffmpeg</code> command for Ogg video is
 
 <!-- code=bash (from !bc sys) typeset with pygments style "default" -->
 <div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png <span style="color: #BB6622; font-weight: bold">\ </span>
-          -acodec libvorbis -vcodec libtheora movie1.ogg
+          -c:v libtheora movie1.ogg
 </pre></div>
+<p>
+Add <code>-c:a libvorbis</code> for audio.
+
 <p>
 <b>Creating Flash video.</b>
 The Flash format is produced by the <code>ffmpeg</code> command
@@ -380,16 +435,37 @@ The Flash format is produced by the <code>ffmpeg</code> command
 <p>
 
 <!-- code=bash (from !bc sys) typeset with pygments style "default" -->
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png <span style="color: #BB6622; font-weight: bold">\ </span>
-          -vcodec flv movie1.flv
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png -c:v flv movie1.flv
 </pre></div>
 <p>
+<b>Creating AVI video.</b>
+The AVI format is produced by the command
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -r 12 -i frames/frame_%04d.png movie1.avi
+</pre></div>
+<p>
+<b>Creating MPEG video.</b>
+The MPEG format does not allow the frame rate to be specified and
+there is no need for specifying the code:
+
+<p>
+
+<!-- code=bash (from !bc sys) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; ffmpeg -i frames/frame_%04d.png -c:v mpeg4 movie1.mpeg
+</pre></div>
+<p>
+<div class="alert alert-block alert-notice alert-text-normal"><b>How list the available codecs.</b>
 The command <code>ffmpeg -codecs</code> lists all available codecs.
 
 <!-- begin inline comment -->
 <font color="red">[<b>hpl 5</b>: <em>All installed
 or all available in theory?</em>]</font>
 <!-- end inline comment -->
+</div>
+
 
 <h3>Using <code>avconv</code> to make MP4, WebM, Ogg, and Flash files  <a name="___sec4"></a></h3>
 
@@ -425,9 +501,9 @@ Terminal&gt; mencoder mf://*.png -mf <span style="color: #008000">type</span><sp
 <p>
 
 <ul>
- <li> <a href="http://forums.bakabt.me/index.php?topic=13304.0"><tt>http://forums.bakabt.me/index.php?topic=13304.0</tt></a></li>
- <li> <a href="http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html"><tt>http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html</tt></a></li>
- <li> <a href="http://www.mplayerhq.hu/DOCS/HTML/en/encoding-guide.html"><tt>http://www.mplayerhq.hu/DOCS/HTML/en/encoding-guide.html</tt></a></li>
+ <li> <a href="http://forums.bakabt.me/index.php?topic=13304.0" target="_self"><tt>http://forums.bakabt.me/index.php?topic=13304.0</tt></a></li>
+ <li> <a href="http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html" target="_self"><tt>http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html</tt></a></li>
+ <li> <a href="http://www.mplayerhq.hu/DOCS/HTML/en/encoding-guide.html" target="_self"><tt>http://www.mplayerhq.hu/DOCS/HTML/en/encoding-guide.html</tt></a></li>
 </ul>
 
 <h3>Uploading a video to YouTube  <a name="___sec6"></a></h3>
@@ -435,10 +511,12 @@ Terminal&gt; mencoder mf://*.png -mf <span style="color: #008000">type</span><sp
 <p>
 The easiest way of playing a movie is to have it available on YouTube
 since any browser is capable of playing a YouTube video.
+
+<p>
 Video files can be uploaded manually...
 
 <p>
-The <a href="http://code.google.com/p/youtube-upload"><tt>youtube-upload</tt></a> script by
+The <a href="http://code.google.com/p/youtube-upload" target="_self"><tt>youtube-upload</tt></a> script by
 Arnau Sanchez automates uploading a video to YouTube.
 
 <p>
@@ -453,12 +531,29 @@ Arnau Sanchez automates uploading a video to YouTube.
                      movie1.flv
 </pre></div>
 <p>
-How can we know the address of this movie?
+The web URL of the movie appears as output from the script.
+
+<h4>Dependencies  <a name="___sec7"></a></h4>
+
+<p>
+See the README file.
+
+<h4>YouTube channels  <a name="___sec8"></a></h4>
+
+<p>
+Many will prefer to use a dedicated YouTube channel with its own
+name for publishing certain types of movies. To make a channel, go to
+<a href="http://www.youtube.com" target="_self">youtube.com</a>, sign in with your Google account,
+click on the down arrow to the right of your your icon/picture,
+choose <em>All my channels</em> to see your YouTube channels, click <em>Create a
+new channel</em>, and fill in the fields. You will receive an email
+where the "from" address contains the mail address of the new channel
+that can be used when uploading movies via the <code>youtube-upload</code> script.
 
 <p>
 <!-- @@@CODE src-animate/youtube-upload -->
 
-<h3>Uploading a video to Vimeo  <a name="___sec7"></a></h3>
+<h3>Uploading a video to Vimeo  <a name="___sec9"></a></h3>
 
 <p>
 
@@ -466,7 +561,7 @@ How can we know the address of this movie?
 <font color="red">[<b>hpl 6</b>: <em>Possible, but no user-friendly script found.</em>]</font>
 <!-- end inline comment -->
 
-<h3>Playing a sequence of image files in HTML/JavaScript  <a name="___sec8"></a></h3>
+<h3>Playing a sequence of image files in HTML/JavaScript  <a name="___sec10"></a></h3>
 
 <p>
 A web page can play a series of image files as an animation with the
@@ -559,7 +654,7 @@ where the JavaScript functions called by the buttons are defined as
 <span style="color: #666666">&lt;</span>/script&gt;
 </pre></div>
 <p>
-The program <a href="https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/html_player.py"><tt>html_player.py</tt></a>
+The program <a href="https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/html_player.py" target="_self"><tt>html_player.py</tt></a>
 generates this type of JavaScript code and is run like
 
 <p>
@@ -569,11 +664,11 @@ generates this type of JavaScript code and is run like
 </pre></div>
 <p>
 You can now load <code>player.html</code> into a browser to see the movie, or
-click <a href="mov-animate/demo.html">here</a>.
+click <a href="mov-animate/demo.html" target="_self">here</a>.
 
-<h2>Displaying movies  <a name="___sec9"></a></h2>
+<h2>Displaying movies  <a name="___sec11"></a></h2>
 
-<h3>HTML5 <code>video</code> tag  <a name="___sec10"></a></h3>
+<h3>HTML5 <code>video</code> tag  <a name="___sec12"></a></h3>
 
 <p>
 To display a specific video file, say <code>movie1.webm</code>, the relevant
@@ -618,7 +713,7 @@ MP4, WebM, and Ogg, and specify all three as possible formats:
 The MP4 file is specified first, because on iOS devices (iPhone/iPad)
 only one source is loaded, but these devices play MP4 files.
 
-<h3>Classic HTML <code>embed</code> tag  <a name="___sec11"></a></h3>
+<h3>Classic HTML <code>embed</code> tag  <a name="___sec13"></a></h3>
 
 <p>
 Prior to HTML5 one used the <code>embed</code> tag to embed movies. The browser
@@ -634,35 +729,104 @@ The <code>embed</code> tag looks like
        <span style="color: #7D9029">autoplay=</span><span style="color: #BA2121">&quot;true&quot;</span> <span style="color: #7D9029">loop=</span><span style="color: #BA2121">&quot;true&quot;</span><span style="color: #008000; font-weight: bold">&gt;&lt;/embed&gt;</span>
 </pre></div>
 
-<h3>Emedding YouTube and Vimeo movies in HTML  <a name="___sec12"></a></h3>
+<h3>Emedding YouTube and Vimeo movies in HTML  <a name="___sec14"></a></h3>
 
-<h3>Embedding movies in LaTeX-generated PDF files  <a name="___sec13"></a></h3>
+<h3>Embedding movies in LaTeX-generated PDF files  <a name="___sec15"></a></h3>
 
 <p>
 media9
 
-<h2>Appendix: Software installation  <a name="___sec14"></a></h2>
-
-<h3>Ubuntu/Debian  <a name="___sec15"></a></h3>
+<h2>Appendix: Software installation  <a name="___sec16"></a></h2>
 
 <p>
+<!-- Compiling and linking <code>ffmpeg</code> and related packages require quite some -->
+<!-- work and experience with building software. -->
 
-<ul>
- <li> List the necessary packages, must probably be tested in a clean
-   vagrant box to see what is sufficient.</li>
- <li> Check <a href="https://help.ubuntu.com/community/Medibuntu"><tt>https://help.ubuntu.com/community/Medibuntu</tt></a></li>
-</ul>
+<h3>Ubuntu/Debian  <a name="___sec17"></a></h3>
+
+<p>
+Ubuntu and other Debian-based
+Linux versions support <code>avconv</code> instead of <code>ffmpeg</code>.
+The basic packages for installing <code>avconv</code> are
 
 <p>
 
 <!-- code=text typeset with pygments style "default" -->
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">Terminal&gt; sudo apt-get install -y libavcodec-extra-53 libx264-dev \ 
-          x264 h264enc ffmpeg libav-tools
-Terminal&gt; sudo apt-get install -y mplayer gnome-mplayer mencoder \ 
-          totem totem-plugins totem-mozilla vlc browser-plugin-vlc \ 
-          gxine python-pyxine xine-plugin libxine2-dev \ 
-          libxine2-all-plugins gxine-plugin libxine2-ffmpeg
-Terminal&gt; sudo apt-get install -y swfdec-gnome flashplugin-installer
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">libav-tools
+libavcodec-extra-53
+libx264-dev
+</pre></div>
+<p>
+Various players are installed by
+
+<p>
+
+<!-- code=text typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">mplayer gnome-mplayer
+mencoder
+totem totem-plugins totem-mozilla
+vlc browser-plugin-vlc
+gxine python-pyxine xine-plugin libxine2-dev libxine2-all-plugins
+gxine-plugin libxine2-ffmpeg
+swfdec-gnome flashplugin-installer
+</pre></div>
+<p>
+<!-- Installation scripts are made by the deb2sh.py script in vagrantbox, -->
+<!-- in particular the relevant animation packages are in debpkg_rich.txt. -->
+<!-- Copying relevant parts of the generated Bash and Python scripts -->
+<!-- made the install_animation_tools.* scripts below -->
+
+<p>
+Install scripts that runs <code>sudo apt-get install</code> on the above
+packages are found in
+<a href="https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/install_animation_tools.sh" target="_self">Bash</a> and
+<a href="https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/install_animation_tools.py" target="_self">Python</a>.
+
+<p>
+<!-- Old problematic stuff comes next... -->
+
+<p>
+Check <a href="https://help.ubuntu.com/community/Medibuntu" target="_self"><tt>https://help.ubuntu.com/community/Medibuntu</tt></a>
+
+<p>
+Problems may arise for <code>ffmpeg</code> or <code>avconv</code> run with <code>libx264</code>.
+If that encoder cannot be find, try a manual installation as
+described next.
+
+<p>
+
+<!-- begin inline comment -->
+<font color="red">[<b>hpl 7</b>: <em>This did not work for me on Ubuntu 12.04.</em>]</font>
+<!-- end inline comment -->
+
+
+<p>
+
+<!-- code=text (from !bc bashpro) typeset with pygments style "default" -->
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"># Remove existing libx264 libs
+sudo apt-get remove libx264-dev libx264-120
+
+# Compile source in a new directory
+mkdir ~/avconv-source
+cd ~/avconv-source
+
+git clone git://git.videolan.org/x264.git
+cd x264
+./configure --enable-static --disable-asm
+make
+sudo make install
+cd ..
+
+git clone git://git.libav.org/libav.git
+cd libav
+./configure
+./configure --enable-gpl --enable-static --enable-shared \ 
+            --enable-libx264 --enable-libvpx --enable-libtheora
+make
+sudo make install
+cd ..
+
+# avconv -i test.mov -c:v libx264 -c:a copy test.mp4
 </pre></div>
 <p>
 Useful links for installing ffmpeg:
@@ -670,11 +834,15 @@ Useful links for installing ffmpeg:
 <p>
 
 <ul>
- <li> <a href="https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide"><tt>https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide</tt></a></li>
- <li> <a href="http://ubuntuforums.org/showthread.php?t=786095"><tt>http://ubuntuforums.org/showthread.php?t=786095</tt></a></li>
- <li> <a href="http://stackoverflow.com/questions/9764740/unknown-encoder-libx264"><tt>http://stackoverflow.com/questions/9764740/unknown-encoder-libx264</tt></a></li>
+ <li> <a href="https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide" target="_self"><tt>https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide</tt></a></li>
+ <li> <a href="http://ubuntuforums.org/showthread.php?t=786095" target="_self"><tt>http://ubuntuforums.org/showthread.php?t=786095</tt></a></li>
+ <li> <a href="http://stackoverflow.com/questions/9764740/unknown-encoder-libx264" target="_self"><tt>http://stackoverflow.com/questions/9764740/unknown-encoder-libx264</tt></a></li>
 </ul>
 
+<h3>Mac OS X  <a name="___sec18"></a></h3>
+
+<p>
+<a href="http://www.renevolution.com/how-to-install-ffmpeg-on-mac-os-x/" target="_self"><tt>http://www.renevolution.com/how-to-install-ffmpeg-on-mac-os-x/</tt></a>
 
 <!-- ------------------- end of main content --------------- -->
 
