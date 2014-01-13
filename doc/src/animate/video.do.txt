@@ -1,5 +1,5 @@
 TITLE: How to Make Animations from Individual Frames
-AUTHOR: Hans Petter Langtangen at Center for Biomedical Computing, Simula Research Laboratory and Department of Informatics, University of Oslo
+AUTHOR: Hans Petter Langtangen at Center for Biomedical Computing, Simula Research Laboratory & Department of Informatics, University of Oslo
 AUTHOR: Johannes Ring at Center for Biomedical Computing, Simula Research Laboratory
 DATE: today
 
@@ -327,6 +327,149 @@ that can be used when uploading movies via the `youtube-upload` script.
 
 [hpl: Possible, but no user-friendly script found.]
 
+
+======= Displaying movies =======
+
+===== HTML5 `video` tag =====
+
+To display a specific video file, say `movie1.webm`, the relevant
+HTML5 command is
+
+!bc htmlcod
+<video autoplay loop controls
+       width='640' height='365' preload='none'>
+<source src='movie1.webm'  type='video/webm; codecs="vp8, vorbis"'>
+</video>
+!ec
+The `autoplay` command makes the video play when the page is loaded.
+You may not want this feature. The `loop` command causes the video to
+repeat forever, while `controls` inserts some basic controls for
+playing, pausing, full screen viewing, etc.
+
+The fundamental problem with the `video` tag in HTML5 is that
+it does not work with any format in any browser on any type of device.
+A common recommendation is to make the videos in three formats,
+MP4, WebM, and Ogg, and specify all three as possible formats:
+
+!bc htmlcod
+<div>
+<video autoplay loop controls
+       width='640' height='365' preload='none'>
+<source src='movie1.mp4'  type='video/mp4;
+        codecs="avc1.42E01E, mp4a.40.2"'>
+<source src='movie1.webm' type='video/webm;
+        codecs="vp8, vorbis"'>
+<source src='movie1.ogg'  type='video/ogg;
+        codecs="theora, vorbis"'>
+</video>
+</div>
+!ec
+The MP4 file is specified first, because on iOS devices (iPhone/iPad)
+only one source is loaded, but these devices play MP4 files.
+
+===== Classic HTML `embed` tag =====
+
+Prior to HTML5 one used the `embed` tag to embed movies. The browser
+then relies on some player on the system. Successful playing of a video
+relies on
+correct configuration of the browser with an appropriate movie player.
+The `embed` tag looks like
+
+!bc htmlcod
+<embed src="movie1.mpeg" width='640' height='365'
+       autoplay="true" loop="true"></embed>
+!ec
+
+===== Emedding YouTube and Vimeo movies in HTML =====
+
+
+===== Embedding movies in LaTeX-generated PDF files =====
+
+=== The `media9` and `movie15` packages ===
+
+The most modern approach is to use the `media9` package to
+include movies in LaTeX, but `media9` supports the Flash and MP4 video
+formats only. An MP4 file can be included by
+
+!bc latexcod
+\includemedia[
+label=some_label,
+width=0.8\linewidth,
+activate=pageopen,            % or onclick or pagevisible
+addresource=../mov/wave.mp4,  % embed the video in the PDF
+flashvars={
+source=../doc/src/manual/mov/wave.mp4
+&autoPlay=true
+&loop=true
+&scaleMode=letterbox          % preserve aspect ratio
+}]{}{VPlayer.swf}
+!ec
+MPEG and AVI videos can be shown by the older `movie15` package using
+a command like
+
+!bc latexcod
+\includemovie[poster,
+label=some_label,
+autoplay,
+externalviewer,
+text={\small (Loading ../doc/src/manual/mov/wave.avi)},
+repeat,
+]{0.9\linewidth}{0.9\linewidth}{../doc/src/manual/mov/wave.avi}
+!ec
+This command applies an external viewer. An inline viewer is also possible:
+
+\includemovie[poster,
+label=some_label,
+autoplay,
+text={\small (Loading ../doc/src/manual/mov/wave.avi)},
+repeat,
+]{0.9\linewidth}{0.9\linewidth}{../doc/src/manual/mov/wave.avi}
+% Define control buttons
+\movieref[rate=0.5]{some_label}{Slower}
+\movieref[rate=2]{some_label}{Faster}
+\movieref[default]{some_label}{Normal}
+\movieref[pause]{some_label}{Play/Pause}
+\movieref[stop]{some_label}{Stop}
+!ec
+For the popular Ogg and WebM formats, `movie15` only works with
+the `externalviewer`. However, in that case it is easier to use
+the `\href` approach below.
+
+LaTeX beamer introduced a `\movie` command based on the `multimedia`
+package:
+
+!bc latexcod
+\movie[
+showcontrols,
+label=some_label,
+width=0.9\linewidth,
+autostart]{\nolinkurl{../mov/wave.mpeg}}{../mov/wave.mpeg}
+!ec
+
+The simplest and also the most robust LaTeX construction is a `\href`
+command:
+
+!bc latexcod
+\href{run:../mov/wave.mp4}{\nolinkurl{../mov/wave.mp4}}
+!ec
+An external movie player is launched. The `\href` command requires
+inclusion of the `hyperref` package:
+
+!bc latexcod
+\usepackage[%
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=black,
+    filecolor=black,
+    pdfmenubar=true,
+    pdftoolbar=true,
+            ]{hyperref}
+!ec
+
+[hpl: Make `media9` PDF files on Windows and Mac? On linux href and
+animating individual files are best.]
+
 ===== Playing a sequence of image files in HTML/JavaScript =====
 
 A web page can play a series of image files as an animation with the
@@ -420,65 +563,37 @@ Terminal> python html_player.py frames/frame_*.png > player.html
 You can now load `player.html` into a browser to see the movie, or
 click "here": "mov-animate/demo.html".
 
+===== Playing a sequence of image files in LaTeX =====
 
-======= Displaying movies =======
+Suppose you have a lot of individual frames `frames/frame_*.png`
+that can be animated. The LaTeX package `animate` does the same as
+the JavaScript code in the previous section. However, if the files
+are named `frame_0000.png`, `frame_0001.png` and so forth, which
+is standard and natural, `animate` cannot use the convienient one-line
+command `\animategraphics`. One has to specify each file separately.
+This is easiest done via some Python code:
 
-===== HTML5 `video` tag =====
+!bc cod
+def generate_animation_latex_code(filename_generator, begin, end):
+    commands = \
+    [r'\includegraphics[width=0.9\textwidth]{%s}'
+     % filename_generator % i for i in range(begin, end+1, 1)]
+    commands = '\n\\newframe\n'.join(commands)
+    return """
+\begin{animateinline}[controls,loop]{12}
+%s
+\end{animateinline}
+""" % commands
 
-To display a specific video file, say `movie1.webm`, the relevant
-HTML5 command is
-
-!bc htmlcod
-<video autoplay loop controls
-       width='640' height='365' preload='none'>
-<source src='movie1.webm'  type='video/webm; codecs="vp8, vorbis"'>
-</video>
+print generate_animation_latex_code('frames/frame_%04d.png', 0, 320)
 !ec
-The `autoplay` command makes the video play when the page is loaded.
-You may not want this feature. The `loop` command causes the video to
-repeat forever, while `controls` inserts some basic controls for
-playing, pausing, full screen viewing, etc.
+In the preamble one must load `animate` and `graphicx`:
 
-The fundamental problem with the `video` tag in HTML5 is that
-it does not work with any format in any browser on any type of device.
-A common recommendation is to make the videos in three formats,
-MP4, WebM, and Ogg, and specify all three as possible formats:
-
-!bc htmlcod
-<div>
-<video autoplay loop controls
-       width='640' height='365' preload='none'>
-<source src='movie1.mp4'  type='video/mp4;
-        codecs="avc1.42E01E, mp4a.40.2"'>
-<source src='movie1.webm' type='video/webm;
-        codecs="vp8, vorbis"'>
-<source src='movie1.ogg'  type='video/ogg;
-        codecs="theora, vorbis"'>
-</video>
-</div>
-!ec
-The MP4 file is specified first, because on iOS devices (iPhone/iPad)
-only one source is loaded, but these devices play MP4 files.
-
-===== Classic HTML `embed` tag =====
-
-Prior to HTML5 one used the `embed` tag to embed movies. The browser
-then relies on some player on the system. Successful playing of a video
-relies on
-correct configuration of the browser with an appropriate movie player.
-The `embed` tag looks like
-
-!bc htmlcod
-<embed src="movie1.mpeg" width='640' height='365'
-       autoplay="true" loop="true"></embed>
+!bc
+\usepackage{animate}
+\usepackage{graphicx}
 !ec
 
-===== Emedding YouTube and Vimeo movies in HTML =====
-
-
-===== Embedding movies in LaTeX-generated PDF files =====
-
-media9
 
 ======= Appendix: Software installation =======
 
