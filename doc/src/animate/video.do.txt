@@ -1,6 +1,6 @@
 TITLE: How to Make Animations from Individual Frames
 AUTHOR: Hans Petter Langtangen at Center for Biomedical Computing, Simula Research Laboratory & Department of Informatics, University of Oslo
-AUTHOR: Johannes Ring at Center for Biomedical Computing, Simula Research Laboratory
+#AUTHOR: Johannes Ring at Center for Biomedical Computing, Simula Research Laboratory
 DATE: today
 
 _Under construction!_
