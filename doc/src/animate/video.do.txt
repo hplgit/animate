@@ -1,6 +1,6 @@
 TITLE: How to Make Animations from Individual Frames
-AUTHOR: Hans Petter Langtangen at Center for Biomedical Computing, Simula Research Laboratory and Department of Informatics, University of Oslo
-AUTHOR: Johannes Ring at Center for Biomedical Computing, Simula Research Laboratory
+AUTHOR: Hans Petter Langtangen at Center for Biomedical Computing, Simula Research Laboratory & Department of Informatics, University of Oslo
+#AUTHOR: Johannes Ring at Center for Biomedical Computing, Simula Research Laboratory
 DATE: today
 
 _Under construction!_
@@ -14,7 +14,7 @@ __Summary.__
 This note explains how to create animations from a series of individual plots.
 The animations are realized in several formats relevant for today's
 web browsers and PDF viewers: animated GIF, MP4, WebM, Ogg, and Flash.
-The tools used to create video files are `convert`, `ffmpeg`, `avconv`,
+The tools used to create video files are `convert`, `ffmpeg` or `avconv`,
 and `mencoder`.
 
 ======= Problem setting =======
@@ -35,7 +35,7 @@ MOVIE: [mov-animate/demo.ogg]
 
 __Filenames.__
 In the forthcoming examples, the individual plot files are stored in a
-subdirectory `frames` and have filenames `frame_0000.png`,
+subdirectory "`frames`": "https://github.com/hplgit/animate/tree/master/doc/src/animate/src-animate/testfiles/frames" and have filenames `frame_0000.png`,
 `frame_0001.png`, `frame_0002.png`, and so on. The plot files were
 generated in some program that used the printf syntax `frame_%04d.png`
 to specify the filenames. Note that the padding with zeros is
@@ -127,20 +127,33 @@ file collections.
 [hpl: `convert` is killed when trying to make the demo animation; it is too big
 for my Mac 11''.]
 
-===== Using `ffmpeg` to make MP4, WebM, Ogg, and Flash files =====
+===== Using `ffmpeg` to make MP4, WebM, Ogg, Flash, AVI, and MPEG files =====
+
+!bwarning
+The `ffmpeg` program runs on all major platforms, but Debian-based
+Linux systems offers the almost equivalent program `avconv` instead.
+All `ffmpeg` commands below work with `avconv`, just replace the
+program name.
+!ewarning
 
 The basic `ffmpeg` command for producing a movie file with
 name `movie.ext`, in the format
 implied by the extension `.ext`, reads
 
 !bc sys
-Terminal> ffmpeg -r 12 -i frames/frame_%04d.png -r 12 movie.ext
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
+          -c:v libcodec movie.ext
 !ec
-The `-r` option specifies the number of frames per second (and should
-come first), while `-i`
+The `-r` option sets the number of frames per second (and should
+come first), `-i`
 lists the individual frames, with the filenames parameterized
-according to the printf syntax. The relevant extensions are
-`.mp4` for MP4, `.webm` for WebM, and `.ogg` for Ogg.
+according to the printf syntax, and `-c:v` specifies the
+codec for video to be used). The relevant extensions of the movie file are
+`.mp4` for MP4, `.webm` for WebM, `.ogg` for Ogg, '.mpeg' or '.mpg'
+for MPEG, and '.avi' for AVI.
+
+
+
 
 Video files are compressed and therefore need a "codec":
 "http://en.wikipedia.org/wiki/Video_codec" to compress and decompress
@@ -158,21 +171,22 @@ The `ffmpeg` command for MP4 movies with the H.264 codec is
 
 !bc sys
 Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
-          -vcodec libx264 -x264opts movie1.mp4
+          -c:v libx264 movie1.mp4
 !ec
 The `-r` option governs the number of frames per second, here 12.
 The `-i` option indicates the set of input files, here specified
 with printf syntax (the same syntax as was used to make the files).
-The option for the audio codec (`-acodec`) can be skipped when there is
-no sound. The `-x64opts` option does not work on all platforms
-(including Ubuntu).
-[hpl: Be specific! It appears here and there, but does not work on Ubuntu.]
+The option for the audio codec (`-c:a`) can be skipped when there is
+no sound.
+#The `-x64opts` option does not work on all platforms
+#(Ubuntu is one of them).
 
 The resulting file can be shown in a video player, such as
 "`vlc`": "http://www.videolan.org/vlc/index.html",
 "`mplayer`": "http://www.mplayerhq.hu/design7/news.html",
 "`gxine`": "http://www.xine-project.org/home", or
 "`totem`": "http://projects.gnome.org/totem/" on Linux platforms:
+[hpl: add mac here, test in windows media player]
 
 !bc sys
 Terminal> vlc movie1.mp4
@@ -194,28 +208,47 @@ The relevant `ffmpeg` command video in the WebM format is
 
 !bc sys
 Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
-          -acodec libvorbis -vcodec libvpx movie1.webm
+          -c:v libvpx movie1.webm
 !ec
+Add `-c:a libvorbis` if the movie features audio as well.
 
 __Creating Ogg video.__
 The proper `ffmpeg` command for Ogg video is
 
 !bc sys
 Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
-          -acodec libvorbis -vcodec libtheora movie1.ogg
+          -c:v libtheora movie1.ogg
 !ec
+Add `-c:a libvorbis` for audio.
 
 __Creating Flash video.__
 The Flash format is produced by the `ffmpeg` command
 
 !bc sys
-Terminal> ffmpeg -r 12 -i frames/frame_%04d.png \
-          -vcodec flv movie1.flv
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png -c:v flv movie1.flv
 !ec
 
+__Creating AVI video.__
+The AVI format is produced by the command
+
+!bc sys
+Terminal> ffmpeg -r 12 -i frames/frame_%04d.png movie1.avi
+!ec
+
+__Creating MPEG video.__
+The MPEG format does not allow the frame rate to be specified and
+there is no need for specifying the code:
+
+!bc sys
+Terminal> ffmpeg -i frames/frame_%04d.png -c:v mpeg4 movie1.mpeg
+!ec
+
+
+!bnotice How list the available codecs
 The command `ffmpeg -codecs` lists all available codecs.
 [hpl: All installed
 or all available in theory?]
+!enotice
 
 ===== Using `avconv` to make MP4, WebM, Ogg, and Flash files =====
 
@@ -316,6 +349,149 @@ Terminal> pip install gdata
 
 [hpl: Possible, but no user-friendly script found.]
 
+
+======= Displaying movies =======
+
+===== HTML5 `video` tag =====
+
+To display a specific video file, say `movie1.webm`, the relevant
+HTML5 command is
+
+!bc htmlcod
+<video autoplay loop controls
+       width='640' height='365' preload='none'>
+<source src='movie1.webm'  type='video/webm; codecs="vp8, vorbis"'>
+</video>
+!ec
+The `autoplay` command makes the video play when the page is loaded.
+You may not want this feature. The `loop` command causes the video to
+repeat forever, while `controls` inserts some basic controls for
+playing, pausing, full screen viewing, etc.
+
+The fundamental problem with the `video` tag in HTML5 is that
+it does not work with any format in any browser on any type of device.
+A common recommendation is to make the videos in three formats,
+MP4, WebM, and Ogg, and specify all three as possible formats:
+
+!bc htmlcod
+<div>
+<video autoplay loop controls
+       width='640' height='365' preload='none'>
+<source src='movie1.mp4'  type='video/mp4;
+        codecs="avc1.42E01E, mp4a.40.2"'>
+<source src='movie1.webm' type='video/webm;
+        codecs="vp8, vorbis"'>
+<source src='movie1.ogg'  type='video/ogg;
+        codecs="theora, vorbis"'>
+</video>
+</div>
+!ec
+The MP4 file is specified first, because on iOS devices (iPhone/iPad)
+only one source is loaded, but these devices play MP4 files.
+
+===== Classic HTML `embed` tag =====
+
+Prior to HTML5 one used the `embed` tag to embed movies. The browser
+then relies on some player on the system. Successful playing of a video
+relies on
+correct configuration of the browser with an appropriate movie player.
+The `embed` tag looks like
+
+!bc htmlcod
+<embed src="movie1.mpeg" width='640' height='365'
+       autoplay="true" loop="true"></embed>
+!ec
+
+===== Emedding YouTube and Vimeo movies in HTML =====
+
+
+===== Embedding movies in LaTeX-generated PDF files =====
+
+=== The `media9` and `movie15` packages ===
+
+The most modern approach is to use the `media9` package to
+include movies in LaTeX, but `media9` supports the Flash and MP4 video
+formats only. An MP4 file can be included by
+
+!bc latexcod
+\includemedia[
+label=some_label,
+width=0.8\linewidth,
+activate=pageopen,            % or onclick or pagevisible
+addresource=../mov/wave.mp4,  % embed the video in the PDF
+flashvars={
+source=../doc/src/manual/mov/wave.mp4
+&autoPlay=true
+&loop=true
+&scaleMode=letterbox          % preserve aspect ratio
+}]{}{VPlayer.swf}
+!ec
+MPEG and AVI videos can be shown by the older `movie15` package using
+a command like
+
+!bc latexcod
+\includemovie[poster,
+label=some_label,
+autoplay,
+externalviewer,
+text={\small (Loading ../doc/src/manual/mov/wave.avi)},
+repeat,
+]{0.9\linewidth}{0.9\linewidth}{../doc/src/manual/mov/wave.avi}
+!ec
+This command applies an external viewer. An inline viewer is also possible:
+
+\includemovie[poster,
+label=some_label,
+autoplay,
+text={\small (Loading ../doc/src/manual/mov/wave.avi)},
+repeat,
+]{0.9\linewidth}{0.9\linewidth}{../doc/src/manual/mov/wave.avi}
+% Define control buttons
+\movieref[rate=0.5]{some_label}{Slower}
+\movieref[rate=2]{some_label}{Faster}
+\movieref[default]{some_label}{Normal}
+\movieref[pause]{some_label}{Play/Pause}
+\movieref[stop]{some_label}{Stop}
+!ec
+For the popular Ogg and WebM formats, `movie15` only works with
+the `externalviewer`. However, in that case it is easier to use
+the `\href` approach below.
+
+LaTeX beamer introduced a `\movie` command based on the `multimedia`
+package:
+
+!bc latexcod
+\movie[
+showcontrols,
+label=some_label,
+width=0.9\linewidth,
+autostart]{\nolinkurl{../mov/wave.mpeg}}{../mov/wave.mpeg}
+!ec
+
+The simplest and also the most robust LaTeX construction is a `\href`
+command:
+
+!bc latexcod
+\href{run:../mov/wave.mp4}{\nolinkurl{../mov/wave.mp4}}
+!ec
+An external movie player is launched. The `\href` command requires
+inclusion of the `hyperref` package:
+
+!bc latexcod
+\usepackage[%
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=black,
+    filecolor=black,
+    pdfmenubar=true,
+    pdftoolbar=true,
+            ]{hyperref}
+!ec
+
+[hpl: Make `media9` PDF files on Windows and Mac? On linux href and
+animating individual files are best.]
+
 ===== Playing a sequence of image files in HTML/JavaScript =====
 
 A web page can play a series of image files as an animation with the
@@ -409,73 +585,78 @@ Terminal> python html_player.py frames/frame_*.png > player.html
 You can now load `player.html` into a browser to see the movie, or
 click "here": "mov-animate/demo.html".
 
+===== Playing a sequence of image files in LaTeX =====
 
-======= Displaying movies =======
+Suppose you have a lot of individual frames `frames/frame_*.png`
+that can be animated. The LaTeX package `animate` does the same as
+the JavaScript code in the previous section. However, if the files
+are named `frame_0000.png`, `frame_0001.png` and so forth, which
+is standard and natural, `animate` cannot use the convienient one-line
+command `\animategraphics`. One has to specify each file separately.
+This is easiest done via some Python code:
 
-===== HTML5 `video` tag =====
+!bc cod
+def generate_animation_latex_code(filename_generator, begin, end):
+    commands = \
+    [r'\includegraphics[width=0.9\textwidth]{%s}'
+     % filename_generator % i for i in range(begin, end+1, 1)]
+    commands = '\n\\newframe\n'.join(commands)
+    return """
+\begin{animateinline}[controls,loop]{12}
+%s
+\end{animateinline}
+""" % commands
 
-To display a specific video file, say `movie1.webm`, the relevant
-HTML5 command is
-
-!bc htmlcod
-<video autoplay loop controls
-       width='640' height='365' preload='none'>
-<source src='movie1.webm'  type='video/webm; codecs="vp8, vorbis"'>
-</video>
+print generate_animation_latex_code('frames/frame_%04d.png', 0, 320)
 !ec
-The `autoplay` command makes the video play when the page is loaded.
-You may not want this feature. The `loop` command causes the video to
-repeat forever, while `controls` inserts some basic controls for
-playing, pausing, full screen viewing, etc.
+In the preamble one must load `animate` and `graphicx`:
 
-The fundamental problem with the `video` tag in HTML5 is that
-it does not work with any format in any browser on any type of device.
-A common recommendation is to make the videos in three formats,
-MP4, WebM, and Ogg, and specify all three as possible formats:
-
-!bc htmlcod
-<div>
-<video autoplay loop controls
-       width='640' height='365' preload='none'>
-<source src='movie1.mp4'  type='video/mp4;
-        codecs="avc1.42E01E, mp4a.40.2"'>
-<source src='movie1.webm' type='video/webm;
-        codecs="vp8, vorbis"'>
-<source src='movie1.ogg'  type='video/ogg;
-        codecs="theora, vorbis"'>
-</video>
-</div>
-!ec
-The MP4 file is specified first, because on iOS devices (iPhone/iPad)
-only one source is loaded, but these devices play MP4 files.
-
-===== Classic HTML `embed` tag =====
-
-Prior to HTML5 one used the `embed` tag to embed movies. The browser
-then relies on some player on the system. Successful playing of a video
-relies on
-correct configuration of the browser with an appropriate movie player.
-The `embed` tag looks like
-
-!bc htmlcod
-<embed src="movie1.mpeg" width='640' height='365'
-       autoplay="true" loop="true"></embed>
+!bc
+\usepackage{animate}
+\usepackage{graphicx}
 !ec
 
-===== Emedding YouTube and Vimeo movies in HTML =====
-
-
-===== Embedding movies in LaTeX-generated PDF files =====
-
-media9
 
 ======= Appendix: Software installation =======
 
+#Compiling and linking `ffmpeg` and related packages require quite some
+#work and experience with building software.
+
 ===== Ubuntu/Debian =====
 
- * List the necessary packages, must probably be tested in a clean
-   vagrant box to see what is sufficient.
- * Check URL: "https://help.ubuntu.com/community/Medibuntu"
+Ubuntu and other Debian-based
+Linux versions support `avconv` instead of `ffmpeg`.
+The basic packages for installing `avconv` are
+
+!bc
+libav-tools
+libavcodec-extra-53
+libx264-dev
+!ec
+Various players are installed by
+
+!bc
+mplayer gnome-mplayer
+mencoder
+totem totem-plugins totem-mozilla
+vlc browser-plugin-vlc
+gxine python-pyxine xine-plugin libxine2-dev libxine2-all-plugins
+gxine-plugin libxine2-ffmpeg
+swfdec-gnome flashplugin-installer
+!ec
+
+# Installation scripts are made by the deb2sh.py script in vagrantbox,
+# in particular the relevant animation packages are in debpkg_rich.txt.
+# Copying relevant parts of the generated Bash and Python scripts
+# made the install_animation_tools.* scripts below
+
+Install scripts that runs `sudo apt-get install` on the above
+packages are found in
+"Bash": "https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/install_animation_tools.sh" and
+"Python": "https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/install_animation_tools.py".
+
+# Old problematic stuff comes next...
+
 
 !bc sys
 Terminal> sudo apt-get install -y libavcodec-extra-54 libx264-dev \
@@ -489,14 +670,9 @@ Terminal> sudo apt-get install -y swfdec-gnome flashplugin-installer
 The library `libavcodec-extra-54` might have a higher number than 54 at
 the time of this reading.
 
-Problems may arise for `ffmpeg` or `avconv` run with `libx264`.
-If that encoder cannot be find, try a manual installation as
-described next.
+Some old stuff:
 
-[hpl: This did not work for me on Ubuntu 12.04.]
-
-!bc bashpro
-# Remove existing libx264 libs
+!bc
 sudo apt-get remove libx264-dev libx264-120
 
 # Compile source in a new directory
@@ -527,3 +703,7 @@ Useful links for installing ffmpeg:
  * URL: "https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide"
  * URL: "http://ubuntuforums.org/showthread.php?t=786095"
  * URL: "http://stackoverflow.com/questions/9764740/unknown-encoder-libx264"
+
+===== Mac OS X =====
+
+URL: "http://www.renevolution.com/how-to-install-ffmpeg-on-mac-os-x/"

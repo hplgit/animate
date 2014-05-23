@@ -1,6 +1,8 @@
 # Identical code exists in scitools.easyviz.movie.html_movie and in
 # doconce.DocWriter.html_movie
 
+import re
+
 def html_movie(plotfiles, interval_ms=300, width=800, height=600,
                casename=None):
     """
@@ -192,7 +194,6 @@ function faster_%(casename)s()
 """ % vars()
     footer = '\n</body>\n</html>\n'
     return header, jscode, form, footer, plotfiles
-
 
 def main():
     import sys
