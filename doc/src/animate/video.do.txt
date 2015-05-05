@@ -14,8 +14,8 @@ __Summary.__
 This note explains how to create animations from a series of individual plots.
 The animations are realized in several formats relevant for today's
 web browsers and PDF viewers: animated GIF, MP4, WebM, Ogg, and Flash.
-The tools used to create video files are `convert`, `ffmpeg` or `avconv`,
-and `mencoder`.
+Common tools used to create video files are `convert`, `ffmpeg` or `avconv`,
+and `mencoder`. Here we emphasize `convert` and `ffmpeg`.
 
 ======= Problem setting =======
 
@@ -128,13 +128,6 @@ file collections.
 for my Mac 11''.]
 
 ===== Using `ffmpeg` to make MP4, WebM, Ogg, Flash, AVI, and MPEG files =====
-
-!bwarning
-The `ffmpeg` program runs on all major platforms, but Debian-based
-Linux systems offers the almost equivalent program `avconv` instead.
-All `ffmpeg` commands below work with `avconv`, just replace the
-program name.
-!ewarning
 
 The basic `ffmpeg` command for producing a movie file with
 name `movie.ext`, in the format
@@ -252,9 +245,13 @@ or all available in theory?]
 
 ===== Using `avconv` to make MP4, WebM, Ogg, and Flash files =====
 
-Exactly the same commands as for `ffmpeg`.
+Debian-based Linux systems lacked `ffmpeg` for a few years, and the sister
+project `avconv` was the tool available. The commands for `avconv`
+are the same as those for `ffmpeg`. From April 2015 `ffmpeg` is back
+in Debian-based systems.
 
-
+# #ifdef EXTRA
+# mencoder is no longer in Debian
 ===== Using `mencoder` to make MP4, WebM, and Ogg files =====
 
 Below are some collected sketches of how to work with mencoder...
@@ -283,6 +280,7 @@ Terminal> mencoder mf://*.png -mf type=png:w=800:h=600:fps=25 \
  * URL: "http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html"
  * URL: "http://www.mplayerhq.hu/DOCS/HTML/en/encoding-guide.html"
 
+# #endif
 
 ===== Uploading a video to YouTube =====
 
@@ -602,22 +600,23 @@ In the preamble one must load `animate` and `graphicx`:
 
 ===== Ubuntu/Debian =====
 
-Ubuntu and other Debian-based
-Linux versions support `avconv` instead of `ffmpeg`.
-The basic packages for installing `avconv` are
+The `ffmpeg` tool is installed by the usual `sado apt-get ffmpeg`
+on Ubuntu and other Debian-based
+Linux versions. Prior to April 2015, `avconv` had to be used as
+replacement for `ffmpeg` on these systems, which require installation
+of
 
 !bc
 libav-tools
-libavcodec-extra-53
+libavcodec-extra-56
 libx264-dev
 !ec
 Various players are installed by
 
 !bc
-mplayer gnome-mplayer
-mencoder
-totem totem-plugins totem-mozilla
 vlc browser-plugin-vlc
+mplayer gnome-mplayer
+totem totem-plugins totem-mozilla
 gxine python-pyxine xine-plugin libxine2-dev libxine2-all-plugins
 gxine-plugin libxine2-ffmpeg
 swfdec-gnome flashplugin-installer
@@ -630,8 +629,8 @@ swfdec-gnome flashplugin-installer
 
 Install scripts that runs `sudo apt-get install` on the above
 packages are found in
-"Bash": "https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/install_animation_tools.sh" and
-"Python": "https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/install_animation_tools.py".
+"Bash": "https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/install_animate.sh" and
+"Python": "https://github.com/hplgit/animate/blob/master/doc/src/animate/src-animate/install_animate.py".
 
 # Old problematic stuff comes next...
 
