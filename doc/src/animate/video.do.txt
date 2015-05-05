@@ -287,7 +287,29 @@ Terminal> mencoder mf://*.png -mf type=png:w=800:h=600:fps=25 \
 The easiest way of playing a movie is to have it available on YouTube
 since any browser is capable of playing a YouTube video.
 
-Video files can be uploaded manually...
+=== YouTube channels ===
+
+Many will prefer to use a dedicated YouTube channel with its own
+name for publishing certain types of movies. To make a channel, go to
+"youtube.com": "http://www.youtube.com", sign in with your Google account,
+click on the down arrow to the right of your your icon/picture,
+choose *All my channels* to see your YouTube channels, click *Create a
+new channel*, and fill in the fields. (You will receive an email
+where the "from" address contains the mail address of the new channel,
+but this address does not work in the `--email` option for
+the `youtube-upload` script.)
+
+=== Manual upload ===
+
+Click your icon or picutre, choose *All my channels* and go to the
+right channel, click the *Upload* button on the upper panel, and then
+*Select files to upload*. A file browser pops up where you can choose
+a video and upload it. You are then brought to a page where you can
+fill in the title of the video, a description, and choose a thumbnail
+plot.
+
+
+=== Automatic upload ===
 
 The "`youtube-upload`": "http://code.google.com/p/youtube-upload" script by
 Arnau Sanchez automates uploading a video to YouTube.
@@ -303,20 +325,20 @@ Terminal> youtube-upload --email=myemail@gmail.com \
 !ec
 The web URL of the movie appears as output from the script.
 
+!bwarning YouTube channels
+As of now, the upload script can only upload videos to the main Google account
+and its associated YouTube channel. Uploads to other channels must
+be done manually as there is not yet any method to transfer a video from
+one channel to another.
+!ewarning
+
 === Dependencies ===
 
-See the README file.
+The `youtube-upload` script needs the "`gdata-python-client`": "https://code.google.com/p/gdata-python-client/", which is most conveniently installed by
 
-=== YouTube channels ===
-
-Many will prefer to use a dedicated YouTube channel with its own
-name for publishing certain types of movies. To make a channel, go to
-"youtube.com": "http://www.youtube.com", sign in with your Google account,
-click on the down arrow to the right of your your icon/picture,
-choose *All my channels* to see your YouTube channels, click *Create a
-new channel*, and fill in the fields. You will receive an email
-where the "from" address contains the mail address of the new channel
-that can be used when uploading movies via the `youtube-upload` script.
+!bc sys
+Terminal> pip install gdata
+!ec
 
 
 #@@@CODE src-animate/youtube-upload
@@ -634,16 +656,22 @@ packages are found in
 
 # Old problematic stuff comes next...
 
-Check URL: "https://help.ubuntu.com/community/Medibuntu"
 
-Problems may arise for `ffmpeg` or `avconv` run with `libx264`.
-If that encoder cannot be find, try a manual installation as
-described next.
+!bc sys
+Terminal> sudo apt-get install -y libavcodec-extra-54 libx264-dev \
+          libav-tools
+Terminal> sudo apt-get install -y mplayer gnome-mplayer mencoder \
+          totem totem-plugins totem-mozilla vlc browser-plugin-vlc \
+          gxine python-pyxine xine-plugin libxine2-dev \
+          libxine2-all-plugins gxine-plugin libxine2-ffmpeg
+Terminal> sudo apt-get install -y swfdec-gnome flashplugin-installer
+!ec
+The library `libavcodec-extra-54` might have a higher number than 54 at
+the time of this reading.
 
-[hpl: This did not work for me on Ubuntu 12.04.]
+Some old stuff:
 
-!bc bashpro
-# Remove existing libx264 libs
+!bc
 sudo apt-get remove libx264-dev libx264-120
 
 # Compile source in a new directory
